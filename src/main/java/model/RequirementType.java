@@ -79,4 +79,5 @@ public class RequirementType {
     public void setNarrowerRequirementID(List<String> narrowerRequirementID) {
         this.narrowerRequirementID = narrowerRequirementID;
     }
+
 }
