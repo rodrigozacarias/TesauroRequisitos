@@ -1,4 +1,4 @@
-package service;
+package com.requirementsthesauri.service;
 
 import com.franz.agraph.jena.AGGraph;
 import com.franz.agraph.jena.AGGraphMaker;

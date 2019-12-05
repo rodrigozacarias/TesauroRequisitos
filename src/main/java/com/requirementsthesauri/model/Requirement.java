@@ -1,4 +1,4 @@
-package model;
+package com.requirementsthesauri.model;
 
 import java.util.List;
 

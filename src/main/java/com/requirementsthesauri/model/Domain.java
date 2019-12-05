@@ -1,27 +1,30 @@
-package model;
+package com.requirementsthesauri.model;
+
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 import java.util.List;
 
-public class SystemType {
+@EntityScan
+public class Domain {
 
-    private String systemTypeID;
+    private String domainID;
     private String label;
     private String prefLabel;
     private String altLabel;
     private String description;
-    private String broaderSystemTypeID;
-    private List<String> narrowerSystemTypeID;
+    private String broaderDomainID;
+    private List<String> narrowerDomainID;
     private List<String> narrowerRequirementID;
 
-    public SystemType() {
+    public Domain() {
     }
 
-    public String getSystemTypeID() {
-        return systemTypeID;
+    public String getDomainID() {
+        return domainID;
     }
 
-    public void setSystemTypeID(String systemTypeID) {
-        this.systemTypeID = systemTypeID;
+    public void setDomainID(String domainID) {
+        this.domainID = domainID;
     }
 
     public String getLabel() {
@@ -56,20 +59,20 @@ public class SystemType {
         this.description = description;
     }
 
-    public String getBroaderSystemTypeID() {
-        return broaderSystemTypeID;
+    public String getBroaderDomainID() {
+        return broaderDomainID;
     }
 
-    public void setBroaderSystemTypeID(String broaderSystemTypeID) {
-        this.broaderSystemTypeID = broaderSystemTypeID;
+    public void setBroaderDomainID(String broaderDomainID) {
+        this.broaderDomainID = broaderDomainID;
     }
 
-    public List<String> getNarrowerSystemTypeID() {
-        return narrowerSystemTypeID;
+    public List<String> getNarrowerDomainID() {
+        return narrowerDomainID;
     }
 
-    public void setNarrowerSystemTypeID(List<String> narrowerSystemTypeID) {
-        this.narrowerSystemTypeID = narrowerSystemTypeID;
+    public void setNarrowerDomainID(List<String> narrowerDomainID) {
+        this.narrowerDomainID = narrowerDomainID;
     }
 
     public List<String> getNarrowerRequirementID() {

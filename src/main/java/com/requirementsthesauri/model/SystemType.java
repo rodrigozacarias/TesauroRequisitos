@@ -1,27 +1,27 @@
-package model;
+package com.requirementsthesauri.model;
 
 import java.util.List;
 
-public class Domain {
+public class SystemType {
 
-    private String domainID;
+    private String systemTypeID;
     private String label;
     private String prefLabel;
     private String altLabel;
     private String description;
-    private String broaderDomainID;
-    private List<String> narrowerDomainID;
+    private String broaderSystemTypeID;
+    private List<String> narrowerSystemTypeID;
     private List<String> narrowerRequirementID;
 
-    public Domain() {
+    public SystemType() {
     }
 
-    public String getDomainID() {
-        return domainID;
+    public String getSystemTypeID() {
+        return systemTypeID;
     }
 
-    public void setDomainID(String domainID) {
-        this.domainID = domainID;
+    public void setSystemTypeID(String systemTypeID) {
+        this.systemTypeID = systemTypeID;
     }
 
     public String getLabel() {
@@ -56,20 +56,20 @@ public class Domain {
         this.description = description;
     }
 
-    public String getBroaderDomainID() {
-        return broaderDomainID;
+    public String getBroaderSystemTypeID() {
+        return broaderSystemTypeID;
     }
 
-    public void setBroaderDomainID(String broaderDomainID) {
-        this.broaderDomainID = broaderDomainID;
+    public void setBroaderSystemTypeID(String broaderSystemTypeID) {
+        this.broaderSystemTypeID = broaderSystemTypeID;
     }
 
-    public List<String> getNarrowerDomainID() {
-        return narrowerDomainID;
+    public List<String> getNarrowerSystemTypeID() {
+        return narrowerSystemTypeID;
     }
 
-    public void setNarrowerDomainID(List<String> narrowerDomainID) {
-        this.narrowerDomainID = narrowerDomainID;
+    public void setNarrowerSystemTypeID(List<String> narrowerSystemTypeID) {
+        this.narrowerSystemTypeID = narrowerSystemTypeID;
     }
 
     public List<String> getNarrowerRequirementID() {
