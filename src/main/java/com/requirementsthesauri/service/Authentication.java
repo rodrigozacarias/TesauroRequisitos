@@ -18,6 +18,7 @@ public class Authentication {
     public String USERNAME = "admin";
     public String PASSWORD = "admin";
     public String TEMPORARY_DIRECTORY = "";
+    public AGRepositoryConnection conn;
 
     static Authentication authentication = new Authentication();
 
@@ -31,7 +32,6 @@ public class Authentication {
         println("Available repositories in catalog "
                 + (catalog.getCatalogName()) + ": "
                 + catalog.listRepositories());
-        AGRepositoryConnection conn;
         if (catalog.listRepositories().isEmpty()) {
             conn = createRepository(catalog).getConnection();
         }else{

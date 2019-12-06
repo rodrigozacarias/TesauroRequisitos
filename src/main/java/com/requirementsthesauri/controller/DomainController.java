@@ -1,11 +1,12 @@
 package com.requirementsthesauri.controller;
 
-import com.requirementsthesauri.model.Domain;
 import com.requirementsthesauri.service.DomainService;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.json.JsonObject;
 import javax.validation.Valid;
 
 @RestController
@@ -20,8 +21,8 @@ public class DomainController{
     }
 
     @PostMapping
-    public ResponseEntity<?> createDomain(@Valid @RequestBody Domain domain){
-        return new ResponseEntity<>(domainService.createDomain(domain), HttpStatus.OK);
+    public ResponseEntity<?> createDomain(JsonObject domains){
+        return new ResponseEntity<>(domainService.createDomain(domains), HttpStatus.OK);
     }
 
 }
