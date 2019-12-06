@@ -1,5 +1,6 @@
 package com.requirementsthesauri.model;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 import java.util.List;
@@ -17,6 +18,17 @@ public class Domain {
     private List<String> narrowerRequirementID;
 
     public Domain() {
+    }
+
+    public Domain(String domainID, String label, String prefLabel, String altLabel, String description, String broaderDomainID, List<String> narrowerDomainID, List<String> narrowerRequirementID) {
+        this.domainID = domainID;
+        this.label = label;
+        this.prefLabel = prefLabel;
+        this.altLabel = altLabel;
+        this.description = description;
+        this.broaderDomainID = broaderDomainID;
+        this.narrowerDomainID = narrowerDomainID;
+        this.narrowerRequirementID = narrowerRequirementID;
     }
 
     public String getDomainID() {

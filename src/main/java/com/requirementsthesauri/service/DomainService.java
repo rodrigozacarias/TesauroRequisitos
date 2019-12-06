@@ -7,7 +7,9 @@ import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 
 import javax.json.*;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 
@@ -16,11 +18,11 @@ public class DomainService {
     Authentication authentication = new Authentication();
     String id = "";
 
-    public String createDomain(JsonObject domains){
+    public List<Domain> createDomain(List<Domain> domains){
 
         AGGraph graph = authentication.getConnectionDataBase();
         AGModel model = new AGModel(graph);
-        Iterator<?> subjects = model.listSubjects();
+        /*Iterator<?> subjects = model.listSubjects();
         Iterator<Map.Entry<String, JsonValue>> json_values = domains.entrySet().iterator();
 
         id = newId(json_values);
@@ -47,13 +49,19 @@ public class DomainService {
 
 
         authentication.conn.close();
-        return resource.getURI();
+        return resource.getURI();*/
+        return domains;
     }
 
-    public Domain getAllDomains(){
+    public List<Domain> getAllDomains(){
+        List<Domain> domains = new ArrayList<>();
         Domain domain = new Domain();
         domain.setLabel("Segurança");
-        return domain;
+        Domain domain2 = new Domain();
+        domain2.setLabel("Confiabilidade");
+        domains.add(domain);
+        domains.add(domain2);
+        return domains;
     }
 
     private JsonObject expandJson(JsonObject obj){
