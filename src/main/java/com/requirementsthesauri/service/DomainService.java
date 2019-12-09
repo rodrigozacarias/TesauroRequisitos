@@ -5,6 +5,10 @@ import com.franz.agraph.jena.AGModel;
 import com.requirementsthesauri.model.Domain;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.update.UpdateExecutionFactory;
+import org.apache.jena.update.UpdateFactory;
+import org.apache.jena.update.UpdateProcessor;
+import org.apache.jena.update.UpdateRequest;
 
 import javax.json.*;
 import java.util.ArrayList;
@@ -15,6 +19,7 @@ import java.util.Map;
 
 public class DomainService {
 
+    String sparqlEndpoint = "http://http://localhost:10035/catalogs/system/repositories/requirements#query";
     Authentication authentication = new Authentication();
     String id = "";
 
@@ -26,36 +31,48 @@ public class DomainService {
         JsonArrayBuilder jsonArrayAdd = Json.createArrayBuilder();
         String uri = "localhost:8080/requirementsThesauri/domains/";
 
-        //AGModel model = new AGModel(graph);
-        /*Iterator<?> subjects = model.listSubjects();
-        Iterator<Map.Entry<String, JsonValue>> json_values = domains.entrySet().iterator();
-
-        id = newId(json_values);
-        if (existId(subjects, id) || (id.equals(""))) {
-            return null;
-        }
-
-        Resource resource =	model.createResource("http://localhost:8080/requirementsThesauri/domains/" + id);
-        Property type = model.getProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-        Resource resourceLocation =	model.createResource("http://www.w3.org/2004/02/skos/core#Concept" );
-        model.add(resource, type, resourceLocation);
-        Iterator<Map.Entry<String, JsonValue>> iterator = domains.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, JsonValue> entry = iterator.next();
-            String key = entry.getKey().toString();
-            String value = entry.getValue().toString();
-            JsonValue Jvalue = entry.getValue();
+        for(int i=0; i<TAM; i++) {
+            String domainID = domainsList.get(i).getDomainID();
+            String label = domainsList.get(i).getLabel();
+            String prefLabel = domainsList.get(i).getPrefLabel();
+            String altLabel = domainsList.get(i).getAltLabel();
+            String description = domainsList.get(i).getDescription();
+            String broaderDomainID = domainsList.get(i).getBroaderDomainID();
+            List<String> narrowerDomainID = domainsList.get(i).getNarrowerDomainID();
+            List<String> narrowerRequirementID = domainsList.get(i).getNarrowerRequirementID();
 
 
-                    model.add(resource, model.getProperty(entry.getKey()), value.substring(1,value.length()-1));
 
+            String queryUpdate = insertDomainSparql(domainID, label, prefLabel, altLabel, description,
+                    broaderDomainID, narrowerDomainID, narrowerRequirementID);
+
+            UpdateRequest request = UpdateFactory.create(queryUpdate);
+            UpdateProcessor up = UpdateExecutionFactory.createRemote(request, sparqlEndpoint);
+            up.execute();
 
         }
-
-
-        authentication.conn.close();
-        return resource.getURI();*/
         return domainsList;
+    }
+
+    public String insertDomainSparql(String domainID, String label, String prefLabel, String altLabel, String description,
+                                     String broaderDomainID, List<String> narrowerDomainID, List<String> narrowerRequirementID) {
+        String queryInsert = "PREFIX gr: <http://purl.org/goodrelations/v1#>\r\n" +
+                "PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>\r\n" +
+                "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\r\n" +
+                "PREFIX exco: <http://localhost:8080/webservice/webapi/companies/>\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "INSERT DATA\r\n" +
+                "{ \r\n"
+                /*"  exco:"+//companyID+" 	rdf:type		gr:BusinessEntity;\r\n" +
+                "                vcard:hasURL	<"+companyURL+">;\r\n" +
+                "                vcard:hasEmail	<"+email+">;\r\n" +
+                "               <http://schema.org/catalog>	<"+catalogURI+">;\r\n" +
+                "                gr:legalName	'"+legalName+"'   .           \r\n" +
+                "}"*/;
+
+        return queryInsert;
+
     }
 
     public List<Domain> getAllDomains(){
@@ -69,57 +86,5 @@ public class DomainService {
         return domains;
     }
 
-    private JsonObject expandJson(JsonObject obj){
-        JsonBuilderFactory factory = Json.createBuilderFactory(null);
-        JsonObjectBuilder jsonOB = factory.createObjectBuilder();
 
-        Iterator<Map.Entry<String, JsonValue>> iterator = obj.entrySet().iterator();
-        while(iterator.hasNext()){
-            Map.Entry<String, JsonValue> entry = iterator.next();
-            String prefix = setPrefix(entry.getKey().toString());
-            jsonOB.add(prefix + entry.getKey(), entry.getValue().toString().substring(1, entry.getValue().toString().length()-1));
-        }
-        return jsonOB.build();
-    }
-
-
-    public String setPrefix(String property) {
-        String prefix = "";
-        if (property.equals("label")) {
-            prefix = "http://www.w3.org/2000/01/rdf-schema#";
-        }else if (property.equals("breeder")) {
-            prefix = "http://dbpedia.org/ontology/";
-        }else if (property.equals("domainID")){
-            prefix = "";
-        }else{
-            prefix = "http://www.w3.org/2004/02/skos/core#";
-        }
-        return prefix;
-    }
-
-    private static String newId (Iterator<Map.Entry<String, JsonValue>> json_values) {
-        String newId = "";
-        while(json_values.hasNext())
-        {
-            Map.Entry<String, JsonValue> entry = json_values.next();
-            if (entry.getKey().toString().equals("id")){
-                String id = entry.getValue().toString();
-                newId = id.substring(1,id.length()-1);
-            }
-        }
-        return newId;
-    }
-
-    private static Boolean existId(Iterator<?> subjects, String id){
-        while(subjects.hasNext()){
-            Resource r = (Resource) subjects.next();
-            if(r.toString().contains("http://localhost:8080/requirementsThesauri/domains/")){/*Verify if it's the ontology statement*/
-                String existId = r.toString().substring(49);
-                if (existId.equals(id)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 }
