@@ -18,10 +18,15 @@ public class DomainService {
     Authentication authentication = new Authentication();
     String id = "";
 
-    public List<Domain> createDomain(List<Domain> domains){
+    public List<Domain> createDomain(List<Domain> domainsList){
 
         AGGraph graph = authentication.getConnectionDataBase();
-        AGModel model = new AGModel(graph);
+
+        int TAM = domainsList.size();
+        JsonArrayBuilder jsonArrayAdd = Json.createArrayBuilder();
+        String uri = "localhost:8080/requirementsThesauri/domains/";
+
+        //AGModel model = new AGModel(graph);
         /*Iterator<?> subjects = model.listSubjects();
         Iterator<Map.Entry<String, JsonValue>> json_values = domains.entrySet().iterator();
 
@@ -50,7 +55,7 @@ public class DomainService {
 
         authentication.conn.close();
         return resource.getURI();*/
-        return domains;
+        return domainsList;
     }
 
     public List<Domain> getAllDomains(){
