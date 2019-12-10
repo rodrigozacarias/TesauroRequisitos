@@ -22,14 +22,14 @@ public class DomainController{
 
     @PostMapping(path = "/createDomainsList")
     public ResponseEntity<?> createDomainList(@RequestBody List<Domain> domains){
-        return new ResponseEntity<>(domainService.createDomain(domains), HttpStatus.OK);
+        return new ResponseEntity<>(domainService.createDomain(domains), HttpStatus.CREATED);
     }
 
     @PostMapping(path = "/createDomain")
     public ResponseEntity<?> createDomain(@RequestBody Domain domain){
         List<Domain> domains  = new ArrayList<>();
         domains.add(domain);
-        return new ResponseEntity<>(domainService.createDomain(domains), HttpStatus.OK);
+        return new ResponseEntity<>(domainService.createDomain(domains), HttpStatus.CREATED);
     }
 
 }

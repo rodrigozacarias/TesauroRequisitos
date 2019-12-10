@@ -1,6 +1,5 @@
 package com.requirementsthesauri.model;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 import java.util.List;
@@ -13,6 +12,7 @@ public class Domain {
     private String prefLabel;
     private String altLabel;
     private String description;
+    private String linkDbpedia;
     private String broaderDomainID;
     private List<String> narrowerDomainID;
     private List<String> narrowerRequirementID;
@@ -20,12 +20,14 @@ public class Domain {
     public Domain() {
     }
 
-    public Domain(String domainID, String label, String prefLabel, String altLabel, String description, String broaderDomainID, List<String> narrowerDomainID, List<String> narrowerRequirementID) {
+    public Domain(String domainID, String label, String prefLabel, String altLabel, String description,
+                  String linkDbpedia, String broaderDomainID, List<String> narrowerDomainID, List<String> narrowerRequirementID) {
         this.domainID = domainID;
         this.label = label;
         this.prefLabel = prefLabel;
         this.altLabel = altLabel;
         this.description = description;
+        this.linkDbpedia = linkDbpedia;
         this.broaderDomainID = broaderDomainID;
         this.narrowerDomainID = narrowerDomainID;
         this.narrowerRequirementID = narrowerRequirementID;
@@ -69,6 +71,14 @@ public class Domain {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getLinkDbpedia() {
+        return linkDbpedia;
+    }
+
+    public void setLinkDbpedia(String linkDbpedia) {
+        this.linkDbpedia = linkDbpedia;
     }
 
     public String getBroaderDomainID() {
