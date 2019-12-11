@@ -61,7 +61,7 @@ public class DomainService {
     }
 
     public String insertDomainSparql(String domainID, String label, String prefLabel, String altLabel, String description,
-                                     String broaderDomainID, String linkDbpedia, List<String> narrowerDomainID, List<String> narrowerRequirementID) {
+                                     String linkDbpedia, String broaderDomainID, List<String> narrowerDomainID, List<String> narrowerRequirementID) {
         String queryInsert = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n" +
                 "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
                 "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
@@ -74,12 +74,21 @@ public class DomainService {
                 "                skos:preLabel	\""+prefLabel+"\" ;\n" +
                 "                skos:altLabel	\""+altLabel+"\" ;\n" +
                 "                skos:note	\""+description+"\" ;\n" +
-                "                rdfs:seeAlso	\""+linkDbpedia+"\" ;\n" +
-                "                skos:broader	\""+broaderDomainID+"\" ;\n" +
-                "                skos:narrower	\""+narrowerDomainID+"\" ;\n" +
-                "                skos:narrower	\""+narrowerRequirementID+"\" .\n" +
-                "}";
+                "                rdfs:seeAlso	<dbpedia"+linkDbpedia+"> ;\n" +
+                "                skos:broader	<"+broaderDomainID+"> ;\n" ;
+        if(!narrowerDomainID.isEmpty()){
+            for (String nd: narrowerDomainID){
+                queryInsert = queryInsert + "                skos:narrower	<"+nd+"> ;\n";
+            }
+        }
+        if(!narrowerRequirementID.isEmpty()){
+            for (String nr: narrowerRequirementID){
 
+                queryInsert = queryInsert +  "                skos:narrower	<"+nr+"> ;\n";
+            }
+        }
+
+        queryInsert = queryInsert + ".\n }";
         return queryInsert;
 
     }
