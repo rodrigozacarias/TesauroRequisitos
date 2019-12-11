@@ -65,7 +65,7 @@ public class DomainService {
         String queryInsert = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n" +
                 "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
                 "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-                "PREFIX dbpedia: <http://dbpedia.org/resource/>\n" +
+                "PREFIX dbr: <http://dbpedia.org/resource/>\n" +
                 "PREFIX uri: <localhost:8080/requirementsThesauri/domains/>\n" +
                 "INSERT DATA\n" +
                 "{\n" +
@@ -74,7 +74,7 @@ public class DomainService {
                 "                skos:preLabel	\""+prefLabel+"\" ;\n" +
                 "                skos:altLabel	\""+altLabel+"\" ;\n" +
                 "                skos:note	\""+description+"\" ;\n" +
-                "                rdfs:seeAlso	<dbpedia"+linkDbpedia+"> ;\n" +
+                "                rdfs:seeAlso	dbr:"+linkDbpedia+" ;\n" +
                 "                skos:broader	<"+broaderDomainID+"> ;\n" ;
         if(!narrowerDomainID.isEmpty()){
             for (String nd: narrowerDomainID){
