@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import javax.json.*;
-import javax.xml.ws.Response;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
@@ -22,7 +21,7 @@ public class DomainService {
     Authentication authentication = new Authentication();
     String id = "";
 
-    public String createDomain(List<Domain> domainsList){
+    public ResponseEntity<?> createDomain(List<Domain> domainsList){
 
         authentication.getAuthentication();
 
@@ -58,7 +57,7 @@ public class DomainService {
         JsonWriter writer = Json.createWriter(outputStream);
         writer.writeArray(ja);
         String output = new String(outputStream.toByteArray());
-        return output;
+        return new ResponseEntity<>(output, HttpStatus.CREATED);
     }
 
     public String insertDomainSparql(String domainID, String label, String prefLabel, String altLabel, String description,
@@ -94,7 +93,7 @@ public class DomainService {
 
     }
 
-    public String getAllDomains(){
+    public ResponseEntity<?> getAllDomains(){
         authentication.getAuthentication();
 
         String querySelect = getAllDomainsSparqlSelect();
@@ -116,7 +115,7 @@ public class DomainService {
         writer.writeArray(ja);
         String output = new String(outputStream.toByteArray());
 
-        return output;
+        return new ResponseEntity<>(output, HttpStatus.OK);
     }
 
 
@@ -126,11 +125,11 @@ public class DomainService {
                 "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
                 "PREFIX dbpedia: <http://dbpedia.org/resource/>\n" +
                 "PREFIX uri: <localhost:8080/requirementsThesauri/domains/>\n" +
-                "SELECT ?domain\r\n" +
-                "WHERE\r\n" +
-                "{\r\n" +
-                "?domain rdf:type skos:Concept .\r\n" +
-                "}\r\n" +
+                "SELECT ?domain\n" +
+                "WHERE\n" +
+                "{\n" +
+                "?domain rdf:type skos:Concept .\n" +
+                "}\n" +
                 "";
 
         return querySelect;
@@ -146,28 +145,36 @@ public class DomainService {
 
         Model rst = qx.execDescribe();
         if (rst.isEmpty()) {
-            return ResponseEntity.status(422).build();
+            return new ResponseEntity("\"Please, choose a valid Domain ID.\"", HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
         if(accept.equals("application/json") || isValidFormat(accept)==false) {
 
-            String querySelect = getCompanySparqlSelect(domainID);
+            String querySelect = getDomainSparqlSelect(domainID);
             Query queryS = QueryFactory.create(querySelect);
             QueryExecution qexec = QueryExecutionFactory.sparqlService(sparqlEndpoint, queryS);
             ResultSet results = qexec.execSelect();
 
             QuerySolution soln = results.nextSolution();
-            String companyURL = soln.getResource("companyURL").toString() ;
-            String legalName = soln.getLiteral("legalName").toString() ;
-            String email = soln.getResource("email").toString() ;
-            String catalogURI = soln.getResource("catalogURI").toString() ;
+            String label = soln.getLiteral("label").toString();
+            String prefLabel = soln.getLiteral("prefLabel").toString();
+            String altLabel = soln.getLiteral("altLabel").toString();
+            String description = soln.getLiteral("description").toString();
+            String linkDBpedia = soln.getResource("linkDBpedia").toString();
+            String broaderDomainID = soln.getResource("broaderDomainID").toString();
+            String narrowerDomainID = soln.getResource("narrowerDomainID").toString();
+            String narrowerRequirementID = soln.getResource("narrowerRequirementID").toString();
 
             JsonObject jobj = Json.createObjectBuilder()
                     .add("id", domainID)
-                    .add("companyURL",companyURL)
-                    .add("legalName",legalName)
-                    .add("email",email)
-                    .add("catalogURI",catalogURI)
+                    .add("label",label)
+                    .add("prefLabel",prefLabel)
+                    .add("altLabel",altLabel)
+                    .add("description",description)
+                    .add("linkDBpedia",linkDBpedia)
+                    .add("broaderDomainID",broaderDomainID)
+                    .add("narrowerDomainID",narrowerDomainID)
+                    .add("narrowerRequirementID",narrowerRequirementID)
                     .build();
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -176,7 +183,7 @@ public class DomainService {
             String output = new String(outputStream.toByteArray());
             writer.close();
 
-            return ResponseEntity.status(422).build();
+            return new ResponseEntity<>(output, HttpStatus.OK);
 
         }else {
 
@@ -186,7 +193,7 @@ public class DomainService {
             rst.write(outputStream, format);
             String output = new String(outputStream.toByteArray());
 
-            return ResponseEntity.status(422).build();
+            return new ResponseEntity<>(output, HttpStatus.OK);
         }
     }
 
@@ -220,37 +227,42 @@ public class DomainService {
             return false;
     }
 
-    public String getCompanySparqlSelect(String companyID) {
-        String query = "PREFIX gr: <http://purl.org/goodrelations/v1#>\r\n" +
-                "PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>\r\n" +
-                "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\r\n" +
-                "PREFIX exco: <http://localhost:8080/webservice/webapi/companies/>\r\n" +
-                "\r\n" +
-                "SELECT ?companyURL ?email ?catalogURI ?legalName\r\n" +
-                "\r\n" +
-                "WHERE{\r\n" +
-                "\r\n" +
-                "  exco:"+companyID+"	rdf:type		gr:BusinessEntity;\r\n" +
-                "                    vcard:hasURL	?companyURL;\r\n" +
-                "                    vcard:hasEmail	?email;\r\n" +
-                "       <http://schema.org/catalog>	?catalogURI;\r\n" +
-                "                    gr:legalName	?legalName	.\r\n" +
-                "  \r\n" +
-                "}\r\n" +
+    public String getDomainSparqlSelect(String domainID) {
+        String query = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n" +
+                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+                "PREFIX dbpedia: <http://dbpedia.org/resource/>\n" +
+                "PREFIX uri: <localhost:8080/requirementsThesauri/domains/>\n" +
+                "SELECT ?label, ?prefLabel, ?altLabel, ?description," +
+                "?linkDbpedia, ?broaderDomainID, ?narrowerDomainID, ?narrowerRequirementID\n" +
+                "WHERE{\n" +
+                "\n" +
+                "  uri:"+domainID+"	rdf:type		skos:Concept ;\n" +
+                "                rdfs:label	?label ;\n" +
+                "                skos:preLabel	?prefLabel ;\n" +
+                "                skos:altLabel	?altLabel ;\n" +
+                "                skos:note	?description ;\n" +
+                "                rdfs:seeAlso	?linkDbpedia ;\n" +
+                "                skos:broader	?broaderDomainID ;\n " +
+                "                skos:narrower	?narrowerDomainID ;\n" +
+                "                skos:narrower	?narrowerRequirementID .\n" +
+                "  \n" +
+                "}\n" +
                 "";
         return query;
     }
 
-    public String getCompanySparqlDescribe(String companyID) {
-        String query = "PREFIX gr: <http://purl.org/goodrelations/v1#>\r\n" +
-                "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\r\n" +
-                "PREFIX exco: <http://localhost:8080/webservice/webapi/companies/>\r\n" +
-                "\r\n" +
-                "DESCRIBE exco:" + companyID + "\r\n" +
-                "WHERE\r\n" +
-                "{\r\n" +
-                "exco:" + companyID + " rdf:type gr:BusinessEntity  .\r\n" +
-                "}\r\n" +
+    public String getCompanySparqlDescribe(String domainID) {
+        String query = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n" +
+                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+                "PREFIX dbpedia: <http://dbpedia.org/resource/>\n" +
+                "PREFIX uri: <localhost:8080/requirementsThesauri/domains/>\n" +
+                "DESCRIBE uri:" + domainID + "\n" +
+                "WHERE\n" +
+                "{\n" +
+                "uri:" + domainID + " rdf:type skos:Concept  .\n" +
+                "}\n" +
                 "";
 
         return query;

@@ -28,15 +28,15 @@ public class DomainController{
             "application/rdf+xml",
             "application/turtle",
             "application/rdf+json"})
-    public ResponseEntity<?> getDomain(@PathParam("domainID") String domainID, @RequestHeader("Accept") String accept){
-        return new ResponseEntity<>(domainService.getAllDomains(), HttpStatus.OK);
+    public ResponseEntity<?> getDomain(@PathVariable(value="domainID") String domainID, @RequestHeader("Accept") String accept){
+        return domainService.getDomain(domainID, accept);
     }
 
 
     @PostMapping(path = "/createDomainsList", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createDomainList(@RequestBody List<Domain> domains){
-        return new ResponseEntity<>(domainService.createDomain(domains), HttpStatus.CREATED);
+        return domainService.createDomain(domains);
     }
 
     @PostMapping(path = "/createDomain", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -44,7 +44,7 @@ public class DomainController{
     public ResponseEntity<?> createDomain(@RequestBody Domain domain){
         List<Domain> domains  = new ArrayList<>();
         domains.add(domain);
-        return new ResponseEntity<>(domainService.createDomain(domains), HttpStatus.CREATED);
+        return domainService.createDomain(domains);
     }
 
 }
