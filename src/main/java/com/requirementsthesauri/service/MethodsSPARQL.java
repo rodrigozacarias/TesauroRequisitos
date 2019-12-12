@@ -101,7 +101,7 @@ public class MethodsSPARQL {
                 "                skos:note	?description ;\n" +
                 "                rdfs:seeAlso	?linkDbpedia ;\n" +
                 "                skos:broader	?broaderDomainID ;\n " +
-                "                skos:narrower	?narrowerDomainID ;\n" +
+                "                skos:narrower  ?narrowerDomainID ;\n" +
                 "                skos:narrower	?narrowerRequirementID .\n" +
                 "  \n" +
                 "}\n" +
