@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 
 import javax.json.*;
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -66,25 +67,26 @@ public class DomainService {
                 "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
                 "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
                 "PREFIX dbr: <http://dbpedia.org/resource/>\n" +
-                "PREFIX uri: <localhost:8080/requirementsThesauri/domains/>\n" +
+                "PREFIX dom: <localhost:8080/requirementsThesauri/domains/>\n" +
+                "PREFIX req: <localhost:8080/requirementsThesauri/requirements/>\n" +
                 "INSERT DATA\n" +
                 "{\n" +
-                "  uri:"+ domainID +" 	rdf:type		skos:Concept ;\n" +
+                "  dom:"+ domainID +" 	rdf:type		skos:Concept ;\n" +
                 "                rdfs:label	\""+label+"\" ;\n" +
                 "                skos:preLabel	\""+prefLabel+"\" ;\n" +
                 "                skos:altLabel	\""+altLabel+"\" ;\n" +
                 "                skos:note	\""+description+"\" ;\n" +
                 "                rdfs:seeAlso	dbr:"+linkDbpedia+" ;\n" +
-                "                skos:broader	<"+broaderDomainID+"> ;\n" ;
+                "                skos:broader	dom:"+broaderDomainID+" ;\n" ;
         if(!narrowerDomainID.isEmpty()){
             for (String nd: narrowerDomainID){
-                queryInsert = queryInsert + "                skos:narrower	<"+nd+"> ;\n";
+                queryInsert = queryInsert + "                skos:narrower	dom:"+nd+" ;\n";
             }
         }
         if(!narrowerRequirementID.isEmpty()){
             for (String nr: narrowerRequirementID){
 
-                queryInsert = queryInsert +  "                skos:narrower	<"+nr+"> ;\n";
+                queryInsert = queryInsert +  "                skos:narrower	req:"+nr+" ;\n";
             }
         }
 
@@ -160,7 +162,7 @@ public class DomainService {
             String prefLabel = soln.getLiteral("prefLabel").toString();
             String altLabel = soln.getLiteral("altLabel").toString();
             String description = soln.getLiteral("description").toString();
-            String linkDBpedia = soln.getResource("linkDBpedia").toString();
+            String linkDbpedia = soln.getResource("linkDbpedia").toString();
             String broaderDomainID = soln.getResource("broaderDomainID").toString();
             String narrowerDomainID = soln.getResource("narrowerDomainID").toString();
             String narrowerRequirementID = soln.getResource("narrowerRequirementID").toString();
@@ -171,7 +173,7 @@ public class DomainService {
                     .add("prefLabel",prefLabel)
                     .add("altLabel",altLabel)
                     .add("description",description)
-                    .add("linkDBpedia",linkDBpedia)
+                    .add("linkDbpedia",linkDbpedia)
                     .add("broaderDomainID",broaderDomainID)
                     .add("narrowerDomainID",narrowerDomainID)
                     .add("narrowerRequirementID",narrowerRequirementID)
@@ -232,12 +234,12 @@ public class DomainService {
                 "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
                 "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
                 "PREFIX dbpedia: <http://dbpedia.org/resource/>\n" +
-                "PREFIX uri: <localhost:8080/requirementsThesauri/domains/>\n" +
-                "SELECT ?label, ?prefLabel, ?altLabel, ?description," +
-                "?linkDbpedia, ?broaderDomainID, ?narrowerDomainID, ?narrowerRequirementID\n" +
+                "PREFIX dom: <localhost:8080/requirementsThesauri/domains/>\n" +
+                "SELECT ?label ?prefLabel ?altLabel ?description" +
+                " ?linkDbpedia ?broaderDomainID ?narrowerDomainID ?narrowerRequirementID \n" +
                 "WHERE{\n" +
                 "\n" +
-                "  uri:"+domainID+"	rdf:type		skos:Concept ;\n" +
+                "  dom:"+domainID+"	rdf:type		skos:Concept ;\n" +
                 "                rdfs:label	?label ;\n" +
                 "                skos:preLabel	?prefLabel ;\n" +
                 "                skos:altLabel	?altLabel ;\n" +
@@ -267,16 +269,16 @@ public class DomainService {
 
         return query;
     }
-    /*public List<Domain> getAllDomains(){
+    public List<Domain> getAllDomains2(){
         List<Domain> domains = new ArrayList<>();
         Domain domain = new Domain();
-        domain.setLabel("Segurança");
+        domain.setLabel("Educação Básica");
         Domain domain2 = new Domain();
-        domain2.setLabel("Confiabilidade");
+        domain2.setLabel("Farmácia");
         domains.add(domain);
         domains.add(domain2);
         return domains;
-    }*/
+    }
 
 
 }

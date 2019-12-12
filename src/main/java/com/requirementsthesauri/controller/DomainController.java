@@ -19,7 +19,7 @@ public class DomainController{
 
     @GetMapping("/getAllDomains")
     public ResponseEntity<?> getAllDomains(){
-        return new ResponseEntity<>(domainService.getAllDomains(), HttpStatus.OK);
+        return domainService.getAllDomains();
     }
 
     @GetMapping(value = "/{domainID}", produces = {"application/json",
