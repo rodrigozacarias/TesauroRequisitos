@@ -20,7 +20,7 @@ public class DomainService {
 
     String sparqlEndpoint = "http://127.0.0.1:10035/catalogs/system/repositories/requirements/sparql";
     Authentication authentication = new Authentication();
-    String id = "";
+    MethodsSPARQL methodsSPARQL = new MethodsSPARQL();
 
     public ResponseEntity<?> createDomain(List<Domain> domainsList){
 
@@ -43,7 +43,7 @@ public class DomainService {
 
 
 
-            String queryUpdate = insertDomainSparql(domainID, label, prefLabel, altLabel, description, linkDBpedia,
+            String queryUpdate = methodsSPARQL.insertDomainSparql(domainID, label, prefLabel, altLabel, description, linkDBpedia,
                     broaderDomainID, narrowerDomainID, narrowerRequirementID);
 
             UpdateRequest request = UpdateFactory.create(queryUpdate);
@@ -61,44 +61,12 @@ public class DomainService {
         return new ResponseEntity<>(output, HttpStatus.CREATED);
     }
 
-    public String insertDomainSparql(String domainID, String label, String prefLabel, String altLabel, String description,
-                                     String linkDbpedia, String broaderDomainID, List<String> narrowerDomainID, List<String> narrowerRequirementID) {
-        String queryInsert = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n" +
-                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
-                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-                "PREFIX dbr: <http://dbpedia.org/resource/>\n" +
-                "PREFIX dom: <localhost:8080/requirementsThesauri/domains/>\n" +
-                "PREFIX req: <localhost:8080/requirementsThesauri/requirements/>\n" +
-                "INSERT DATA\n" +
-                "{\n" +
-                "  dom:"+ domainID +" 	rdf:type		skos:Concept ;\n" +
-                "                rdfs:label	\""+label+"\" ;\n" +
-                "                skos:preLabel	\""+prefLabel+"\" ;\n" +
-                "                skos:altLabel	\""+altLabel+"\" ;\n" +
-                "                skos:note	\""+description+"\" ;\n" +
-                "                rdfs:seeAlso	dbr:"+linkDbpedia+" ;\n" +
-                "                skos:broader	dom:"+broaderDomainID+" ;\n" ;
-        if(!narrowerDomainID.isEmpty()){
-            for (String nd: narrowerDomainID){
-                queryInsert = queryInsert + "                skos:narrower	dom:"+nd+" ;\n";
-            }
-        }
-        if(!narrowerRequirementID.isEmpty()){
-            for (String nr: narrowerRequirementID){
 
-                queryInsert = queryInsert +  "                skos:narrower	req:"+nr+" ;\n";
-            }
-        }
-
-        queryInsert = queryInsert + ".\n }";
-        return queryInsert;
-
-    }
 
     public ResponseEntity<?> getAllDomains(){
         authentication.getAuthentication();
 
-        String querySelect = getAllDomainsSparqlSelect();
+        String querySelect = methodsSPARQL.getAllDomainsSparqlSelect();
 
         Query query = QueryFactory.create(querySelect);
         QueryExecution qexec = QueryExecutionFactory.sparqlService(sparqlEndpoint, query);
@@ -121,26 +89,11 @@ public class DomainService {
     }
 
 
-    public String getAllDomainsSparqlSelect() {
-        String querySelect = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n" +
-                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
-                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-                "PREFIX dbpedia: <http://dbpedia.org/resource/>\n" +
-                "PREFIX uri: <localhost:8080/requirementsThesauri/domains/>\n" +
-                "SELECT ?domain\n" +
-                "WHERE\n" +
-                "{\n" +
-                "?domain rdf:type skos:Concept .\n" +
-                "}\n" +
-                "";
-
-        return querySelect;
-    }
 
     public ResponseEntity<?> getDomain(String domainID, String accept) {
         authentication.getAuthentication();
 
-        String queryDescribe = getCompanySparqlDescribe(domainID);
+        String queryDescribe = methodsSPARQL.getCompanySparqlDescribe(domainID);
 
         Query query = QueryFactory.create(queryDescribe);
         QueryExecution qx = QueryExecutionFactory.sparqlService(sparqlEndpoint, query);
@@ -150,9 +103,9 @@ public class DomainService {
             return new ResponseEntity("\"Please, choose a valid Domain ID.\"", HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
-        if(accept.equals("application/json") || isValidFormat(accept)==false) {
+        if(accept.equals("application/json") || methodsSPARQL.isValidFormat(accept)==false) {
 
-            String querySelect = getDomainSparqlSelect(domainID);
+            String querySelect = methodsSPARQL.getDomainSparqlSelect(domainID);
             Query queryS = QueryFactory.create(querySelect);
             QueryExecution qexec = QueryExecutionFactory.sparqlService(sparqlEndpoint, queryS);
             ResultSet results = qexec.execSelect();
@@ -189,7 +142,7 @@ public class DomainService {
 
         }else {
 
-            String format = convertFromAcceptToFormat(accept);
+            String format = methodsSPARQL.convertFromAcceptToFormat(accept);
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             rst.write(outputStream, format);
@@ -199,76 +152,6 @@ public class DomainService {
         }
     }
 
-    public String convertFromAcceptToFormat(String accept) {
-        String format = "";
-        switch(accept) {
-            case "application/ld+json":
-                format = "JSON-LD";
-                break;
-            case "application/n-triples":
-                format = "N-Triples";
-                break;
-            case "application/rdf+xml":
-                format = "RDF/XML";
-                break;
-            case "application/turtle":
-                format = "TURTLE";
-                break;
-            case "application/rdf+json":
-                format = "RDF/JSON";
-                break;
-        }
-        return format;
-    }
-
-    public boolean isValidFormat(String accept) {
-        if (accept.equals("application/json") || accept.equals("application/ld+json") || accept.equals("application/n-triples") || accept.equals("application/rdf+xml") || accept.equals("application/turtle") || accept.equals("application/rdf+json") )
-            return true;
-
-        else
-            return false;
-    }
-
-    public String getDomainSparqlSelect(String domainID) {
-        String query = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n" +
-                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
-                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-                "PREFIX dbpedia: <http://dbpedia.org/resource/>\n" +
-                "PREFIX dom: <localhost:8080/requirementsThesauri/domains/>\n" +
-                "SELECT ?label ?prefLabel ?altLabel ?description" +
-                " ?linkDbpedia ?broaderDomainID ?narrowerDomainID ?narrowerRequirementID \n" +
-                "WHERE{\n" +
-                "\n" +
-                "  dom:"+domainID+"	rdf:type		skos:Concept ;\n" +
-                "                rdfs:label	?label ;\n" +
-                "                skos:preLabel	?prefLabel ;\n" +
-                "                skos:altLabel	?altLabel ;\n" +
-                "                skos:note	?description ;\n" +
-                "                rdfs:seeAlso	?linkDbpedia ;\n" +
-                "                skos:broader	?broaderDomainID ;\n " +
-                "                skos:narrower	?narrowerDomainID ;\n" +
-                "                skos:narrower	?narrowerRequirementID .\n" +
-                "  \n" +
-                "}\n" +
-                "";
-        return query;
-    }
-
-    public String getCompanySparqlDescribe(String domainID) {
-        String query = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n" +
-                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
-                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-                "PREFIX dbpedia: <http://dbpedia.org/resource/>\n" +
-                "PREFIX uri: <localhost:8080/requirementsThesauri/domains/>\n" +
-                "DESCRIBE uri:" + domainID + "\n" +
-                "WHERE\n" +
-                "{\n" +
-                "uri:" + domainID + " rdf:type skos:Concept  .\n" +
-                "}\n" +
-                "";
-
-        return query;
-    }
     public List<Domain> getAllDomains2(){
         List<Domain> domains = new ArrayList<>();
         Domain domain = new Domain();
