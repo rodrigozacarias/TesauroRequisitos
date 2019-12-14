@@ -172,6 +172,38 @@ public class DomainService {
     }
 
 
+    public ResponseEntity<?> updateDomain(String oldDomainID, Domain newDomain) {
+        authentication.getAuthentication();
+
+        String uri = "localhost:8080/requirementsThesauri/domains/";
+
+        String domainID = newDomain.getDomainID();
+        String label = newDomain.getLabel();
+        String prefLabel = newDomain.getPrefLabel();
+        String altLabel = newDomain.getAltLabel();
+        String description = newDomain.getDescription();
+        String linkDBpedia = newDomain.getLinkDbpedia();
+        String broaderDomainID = newDomain.getBroaderDomainID();
+        List<String> narrowerDomainID = newDomain.getNarrowerDomainID();
+        List<String> narrowerRequirementID = newDomain.getNarrowerRequirementID();
+
+
+        String queryUpdate = methodsSPARQL.updateDomainsSparql(oldDomainID, domainID, label, prefLabel, altLabel, description, linkDBpedia,
+                broaderDomainID, narrowerDomainID, narrowerRequirementID);
+
+        UpdateRequest request = UpdateFactory.create(queryUpdate);
+        UpdateProcessor up = UpdateExecutionFactory.createRemote(request, sparqlEndpoint);
+        up.execute();
+
+        JsonArrayBuilder jsonArrayAdd = Json.createArrayBuilder();
+        jsonArrayAdd.add(uri+domainID);
+        JsonArray ja = jsonArrayAdd.build();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        JsonWriter writer = Json.createWriter(outputStream);
+        writer.writeArray(ja);
+        String output = new String(outputStream.toByteArray());
+        return new ResponseEntity<>(output, HttpStatus.CREATED);
+    }
 
     public List<Domain> getAllDomains2(){
         List<Domain> domains = new ArrayList<>();

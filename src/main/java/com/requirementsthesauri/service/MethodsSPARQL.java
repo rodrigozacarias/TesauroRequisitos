@@ -141,4 +141,46 @@ public class MethodsSPARQL {
 
         return query;
     }
+
+    public String updateDomainsSparql(String olDomainID, String domainID, String label, String prefLabel, String altLabel, String description,
+                                      String linkDbpedia, String broaderDomainID, List<String> narrowerDomainID, List<String> narrowerRequirementID) {
+        String queryUpdate = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n" +
+                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+                "PREFIX dbr: <http://dbpedia.org/resource/>\n" +
+                "PREFIX dom: <localhost:8080/requirementsThesauri/domains/>\n" +
+                "PREFIX req: <localhost:8080/requirementsThesauri/requirements/>\n" +
+                "\n" +
+                "DELETE \n" +
+                "	{ dom:"+olDomainID+" ?p ?s }\n" +
+                "WHERE\n" +
+                "{ \n" +
+                "  dom:"+olDomainID+" ?p ?s;\n" +
+                " 		rdf:type skos:Concept .\n" +
+                "};\n" +
+                "\n" +
+                "INSERT DATA\n" +
+                "{\n" +
+                "  dom:"+ domainID +" 	rdf:type		skos:Concept ;\n" +
+                "                rdfs:label	\""+label+"\" ;\n" +
+                "                skos:preLabel	\""+prefLabel+"\" ;\n" +
+                "                skos:altLabel	\""+altLabel+"\" ;\n" +
+                "                skos:note	\""+description+"\" ;\n" +
+                "                rdfs:seeAlso	dbr:"+linkDbpedia+" ;\n" +
+                "                skos:broader	dom:"+broaderDomainID+" ;\n" ;
+        if(!narrowerDomainID.isEmpty()){
+            for (String nd: narrowerDomainID){
+                queryUpdate = queryUpdate + "                skos:narrower	dom:"+nd+" ;\n";
+            }
+        }
+        if(!narrowerRequirementID.isEmpty()){
+            for (String nr: narrowerRequirementID){
+
+                queryUpdate = queryUpdate +  "                skos:narrower	req:"+nr+" ;\n";
+            }
+        }
+
+        queryUpdate = queryUpdate + ".\n }";
+        return queryUpdate;
+    }
 }

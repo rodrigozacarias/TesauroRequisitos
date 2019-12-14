@@ -45,4 +45,9 @@ public class DomainController{
         return domainService.createDomain(domains);
     }
 
+    @PutMapping(value = "/{domainID}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateDomain(@PathVariable(value="domainID") String domainID, @RequestBody Domain newDomain) {
+        return domainService.updateDomain(domainID, newDomain);
+    }
+
 }
