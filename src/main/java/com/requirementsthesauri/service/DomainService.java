@@ -93,7 +93,7 @@ public class DomainService {
     public ResponseEntity<?> getDomain(String domainID, String accept) {
         authentication.getAuthentication();
 
-        String queryDescribe = methodsSPARQL.getCompanySparqlDescribe(domainID);
+        String queryDescribe = methodsSPARQL.getDomainSparqlDescribe(domainID);
 
         Query query = QueryFactory.create(queryDescribe);
         QueryExecution qx = QueryExecutionFactory.sparqlService(sparqlEndpoint, query);
@@ -111,6 +111,7 @@ public class DomainService {
             ResultSet results = qexec.execSelect();
 
             QuerySolution soln = results.nextSolution();
+            String url = soln.getResource("url").toString();
             String label = soln.getLiteral("label").toString();
             String prefLabel = soln.getLiteral("prefLabel").toString();
             String altLabel = soln.getLiteral("altLabel").toString();
@@ -140,7 +141,8 @@ public class DomainService {
 //            String narrowerRequirementID = soln.getResource("narrowerRequirementID").toString();
 
             JsonObject jobj = Json.createObjectBuilder()
-                    .add("id", domainID)
+                    .add("domainID", domainID)
+                    .add("url", url)
                     .add("label",label)
                     .add("prefLabel",prefLabel)
                     .add("altLabel",altLabel)
@@ -203,6 +205,16 @@ public class DomainService {
         writer.writeArray(ja);
         String output = new String(outputStream.toByteArray());
         return new ResponseEntity<>(output, HttpStatus.CREATED);
+    }
+
+    public void deleteDomain(String domainID) {
+        authentication.getAuthentication();
+
+        String deleteQuery = methodsSPARQL.deleteDomainSparql(domainID);
+
+        UpdateRequest request = UpdateFactory.create(deleteQuery);
+        UpdateProcessor up = UpdateExecutionFactory.createRemote(request, sparqlEndpoint);
+        up.execute();
     }
 
     public List<Domain> getAllDomains2(){
