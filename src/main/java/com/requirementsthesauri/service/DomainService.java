@@ -117,8 +117,27 @@ public class DomainService {
             String description = soln.getLiteral("description").toString();
             String linkDbpedia = soln.getResource("linkDbpedia").toString();
             String broaderDomainID = soln.getResource("broaderDomainID").toString();
-            String narrowerDomainID = soln.getResource("narrowerDomainID").toString();
-            String narrowerRequirementID = soln.getResource("narrowerRequirementID").toString();
+
+
+            String querySelectN = methodsSPARQL.getDomainSparqlSelectNarrower(domainID);
+            Query querySN = QueryFactory.create(querySelectN);
+            QueryExecution qexecN = QueryExecutionFactory.sparqlService(sparqlEndpoint, querySN);
+            ResultSet resultsN = qexecN.execSelect();
+
+            JsonArrayBuilder narrowerDomainID = Json.createArrayBuilder();
+            JsonArrayBuilder narrowerRequirementID = Json.createArrayBuilder();
+            String c = "narrowerDomainID";
+
+            while(resultsN.hasNext()) {
+                String uri = resultsN.nextSolution().getResource(c).getURI();
+              if(uri.contains("domains")) {
+                    narrowerDomainID.add(uri);
+              }else{
+                    narrowerRequirementID.add(uri);
+              }
+            }
+
+//            String narrowerRequirementID = soln.getResource("narrowerRequirementID").toString();
 
             JsonObject jobj = Json.createObjectBuilder()
                     .add("id", domainID)
@@ -151,6 +170,8 @@ public class DomainService {
             return new ResponseEntity<>(output, HttpStatus.OK);
         }
     }
+
+
 
     public List<Domain> getAllDomains2(){
         List<Domain> domains = new ArrayList<>();
