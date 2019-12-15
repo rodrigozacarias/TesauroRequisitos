@@ -1,7 +1,7 @@
 package com.requirementsthesauri.service;
 
-import com.requirementsthesauri.model.Domain;
-import com.requirementsthesauri.service.sparql.MethodsDomainSPARQL;
+import com.requirementsthesauri.model.SystemType;
+import com.requirementsthesauri.service.sparql.MethodsSystemTypeSPARQL;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.update.UpdateExecutionFactory;
@@ -13,45 +13,43 @@ import org.springframework.http.ResponseEntity;
 
 import javax.json.*;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
-
-public class DomainService {
+public class SystemTypeService {
 
     String sparqlEndpoint = "http://127.0.0.1:10035/catalogs/system/repositories/requirements/sparql";
     Authentication authentication = new Authentication();
-    MethodsDomainSPARQL methodsDomainSPARQL = new MethodsDomainSPARQL();
+    MethodsSystemTypeSPARQL methodsSystemTypeSPARQL = new MethodsSystemTypeSPARQL();
 
-    public ResponseEntity<?> createDomain(List<Domain> domainsList){
+    public ResponseEntity<?> createSystemType(List<SystemType> systemTypesList){
 
         authentication.getAuthentication();
 
-        int TAM = domainsList.size();
+        int TAM = systemTypesList.size();
         JsonArrayBuilder jsonArrayAdd = Json.createArrayBuilder();
-        String uri = "localhost:8080/requirementsThesauri/domains/";
+        String uri = "localhost:8080/requirementsThesauri/systemTypes/";
 
         for(int i=0; i<TAM; i++) {
-            String domainID = domainsList.get(i).getDomainID();
-            String label = domainsList.get(i).getLabel();
-            String prefLabel = domainsList.get(i).getPrefLabel();
-            String altLabel = domainsList.get(i).getAltLabel();
-            String description = domainsList.get(i).getDescription();
-            String linkDBpedia = domainsList.get(i).getLinkDbpedia();
-            String broaderDomainID = domainsList.get(i).getBroaderDomainID();
-            List<String> narrowerDomainID = domainsList.get(i).getNarrowerDomainID();
-            List<String> narrowerRequirementID = domainsList.get(i).getNarrowerRequirementID();
+            String systemTypeID = systemTypesList.get(i).getSystemTypeID();
+            String label = systemTypesList.get(i).getLabel();
+            String prefLabel = systemTypesList.get(i).getPrefLabel();
+            String altLabel = systemTypesList.get(i).getAltLabel();
+            String description = systemTypesList.get(i).getDescription();
+            String linkDBpedia = systemTypesList.get(i).getLinkDbpedia();
+            String broaderSystemTypeID = systemTypesList.get(i).getBroaderSystemTypeID();
+            List<String> narrowerSystemTypeID = systemTypesList.get(i).getNarrowerSystemTypeID();
+            List<String> narrowerRequirementID = systemTypesList.get(i).getNarrowerRequirementID();
 
 
 
-            String queryUpdate = methodsDomainSPARQL.insertDomainSparql(domainID, label, prefLabel, altLabel, description, linkDBpedia,
-                    broaderDomainID, narrowerDomainID, narrowerRequirementID);
+            String queryUpdate = methodsSystemTypeSPARQL.insertSystemTypeSparql(systemTypeID, label, prefLabel, altLabel, description, linkDBpedia,
+                    broaderSystemTypeID, narrowerSystemTypeID, narrowerRequirementID);
 
             UpdateRequest request = UpdateFactory.create(queryUpdate);
             UpdateProcessor up = UpdateExecutionFactory.createRemote(request, sparqlEndpoint);
             up.execute();
 
-            jsonArrayAdd.add(uri+domainID);
+            jsonArrayAdd.add(uri+systemTypeID);
 
         }
         JsonArray ja = jsonArrayAdd.build();
@@ -62,12 +60,10 @@ public class DomainService {
         return new ResponseEntity<>(output, HttpStatus.CREATED);
     }
 
-
-
-    public ResponseEntity<?> getAllDomains(){
+    public ResponseEntity<?> getAllSystemTypes(){
         authentication.getAuthentication();
 
-        String querySelect = methodsDomainSPARQL.getAllDomainsSparqlSelect();
+        String querySelect = methodsSystemTypeSPARQL.getAllSystemTypesSparqlSelect();
 
         Query query = QueryFactory.create(querySelect);
         QueryExecution qexec = QueryExecutionFactory.sparqlService(sparqlEndpoint, query);
@@ -76,12 +72,9 @@ public class DomainService {
         //return ResultSetFormatter.asText(results);
 
         JsonArrayBuilder jsonArrayAdd = Json.createArrayBuilder();
-        String c = "domain";
+        String c = "system";
         while(results.hasNext()) {
-            String uri = results.nextSolution().getResource(c).getURI();
-            if(uri.contains("domains")) {
-                jsonArrayAdd.add(uri);
-            }
+            jsonArrayAdd.add(results.nextSolution().getResource(c).getURI());
         }
         JsonArray ja = jsonArrayAdd.build();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -92,12 +85,10 @@ public class DomainService {
         return new ResponseEntity<>(output, HttpStatus.OK);
     }
 
-
-
-    public ResponseEntity<?> getDomain(String domainID, String accept) {
+    public ResponseEntity<?> getSystemType(String systemTypeID, String accept) {
         authentication.getAuthentication();
 
-        String queryDescribe = methodsDomainSPARQL.getDomainSparqlDescribe(domainID);
+        String queryDescribe = methodsSystemTypeSPARQL.getSystemTypeSparqlDescribe(systemTypeID);
 
         Query query = QueryFactory.create(queryDescribe);
         QueryExecution qx = QueryExecutionFactory.sparqlService(sparqlEndpoint, query);
@@ -107,9 +98,9 @@ public class DomainService {
             return new ResponseEntity("\"Please, choose a valid Domain ID.\"", HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
-        if(accept.equals("application/json") || methodsDomainSPARQL.isValidFormat(accept)==false) {
+        if(accept.equals("application/json") || methodsSystemTypeSPARQL.isValidFormat(accept)==false) {
 
-            String querySelect = methodsDomainSPARQL.getDomainSparqlSelect(domainID);
+            String querySelect = methodsSystemTypeSPARQL.getSystemTypeSparqlSelect(systemTypeID);
             Query queryS = QueryFactory.create(querySelect);
             QueryExecution qexec = QueryExecutionFactory.sparqlService(sparqlEndpoint, queryS);
             ResultSet results = qexec.execSelect();
@@ -121,39 +112,38 @@ public class DomainService {
             String altLabel = soln.getLiteral("altLabel").toString();
             String description = soln.getLiteral("description").toString();
             String linkDbpedia = soln.getResource("linkDbpedia").toString();
-            String broaderDomainID = soln.getResource("broaderDomainID").toString();
+            String broaderSystemTypeID = soln.getResource("broaderSystemTypeID").toString();
 
 
-            String querySelectN = methodsDomainSPARQL.getDomainSparqlSelectNarrower(domainID);
+            String querySelectN = methodsSystemTypeSPARQL.getSystemTypeSparqlSelectNarrower(systemTypeID);
             Query querySN = QueryFactory.create(querySelectN);
             QueryExecution qexecN = QueryExecutionFactory.sparqlService(sparqlEndpoint, querySN);
             ResultSet resultsN = qexecN.execSelect();
 
-            JsonArrayBuilder narrowerDomainID = Json.createArrayBuilder();
+            JsonArrayBuilder narrowerSystemTypeID = Json.createArrayBuilder();
             JsonArrayBuilder narrowerRequirementID = Json.createArrayBuilder();
-            String c = "narrowerDomainID";
+            String c = "narrowerSystemTypeID";
 
             while(resultsN.hasNext()) {
                 String uri = resultsN.nextSolution().getResource(c).getURI();
-              if(uri.contains("domains")) {
-                    narrowerDomainID.add(uri);
-              }else{
+                if(uri.contains("systemTypes")) {
+                    narrowerSystemTypeID.add(uri);
+                }else{
                     narrowerRequirementID.add(uri);
-              }
+                }
             }
 
-//            String narrowerRequirementID = soln.getResource("narrowerRequirementID").toString();
 
             JsonObject jobj = Json.createObjectBuilder()
-                    .add("domainID", domainID)
+                    .add("systemTypeID", systemTypeID)
                     .add("url", url)
                     .add("label",label)
                     .add("prefLabel",prefLabel)
                     .add("altLabel",altLabel)
                     .add("description",description)
                     .add("linkDbpedia",linkDbpedia)
-                    .add("broaderDomainID",broaderDomainID)
-                    .add("narrowerDomainID",narrowerDomainID)
+                    .add("broaderSystemTypeID",broaderSystemTypeID)
+                    .add("narrowerSystemTypeID",narrowerSystemTypeID)
                     .add("narrowerRequirementID",narrowerRequirementID)
                     .build();
 
@@ -167,7 +157,7 @@ public class DomainService {
 
         }else {
 
-            String format = methodsDomainSPARQL.convertFromAcceptToFormat(accept);
+            String format = methodsSystemTypeSPARQL.convertFromAcceptToFormat(accept);
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             rst.write(outputStream, format);
@@ -177,32 +167,31 @@ public class DomainService {
         }
     }
 
-
-    public ResponseEntity<?> updateDomain(String oldDomainID, Domain newDomain) {
+    public ResponseEntity<?> updateSystemType(String oldSystemTypeID, SystemType newSystemType) {
         authentication.getAuthentication();
 
-        String uri = "localhost:8080/requirementsThesauri/domains/";
+        String uri = "localhost:8080/requirementsThesauri/systemTypes/";
 
-        String domainID = newDomain.getDomainID();
-        String label = newDomain.getLabel();
-        String prefLabel = newDomain.getPrefLabel();
-        String altLabel = newDomain.getAltLabel();
-        String description = newDomain.getDescription();
-        String linkDBpedia = newDomain.getLinkDbpedia();
-        String broaderDomainID = newDomain.getBroaderDomainID();
-        List<String> narrowerDomainID = newDomain.getNarrowerDomainID();
-        List<String> narrowerRequirementID = newDomain.getNarrowerRequirementID();
+        String systemTypeID = newSystemType.getSystemTypeID();
+        String label = newSystemType.getLabel();
+        String prefLabel = newSystemType.getPrefLabel();
+        String altLabel = newSystemType.getAltLabel();
+        String description = newSystemType.getDescription();
+        String linkDBpedia = newSystemType.getLinkDbpedia();
+        String broaderSystemTypeID = newSystemType.getBroaderSystemTypeID();
+        List<String> narrowerSystemTypeID = newSystemType.getNarrowerSystemTypeID();
+        List<String> narrowerRequirementID = newSystemType.getNarrowerRequirementID();
 
 
-        String queryUpdate = methodsDomainSPARQL.updateDomainsSparql(oldDomainID, domainID, label, prefLabel, altLabel, description, linkDBpedia,
-                broaderDomainID, narrowerDomainID, narrowerRequirementID);
+        String queryUpdate = methodsSystemTypeSPARQL.updateSystemTypeSparql(oldSystemTypeID, systemTypeID, label, prefLabel, altLabel, description, linkDBpedia,
+                broaderSystemTypeID, narrowerSystemTypeID, narrowerRequirementID);
 
         UpdateRequest request = UpdateFactory.create(queryUpdate);
         UpdateProcessor up = UpdateExecutionFactory.createRemote(request, sparqlEndpoint);
         up.execute();
 
         JsonArrayBuilder jsonArrayAdd = Json.createArrayBuilder();
-        jsonArrayAdd.add(uri+domainID);
+        jsonArrayAdd.add(uri+systemTypeID);
         JsonArray ja = jsonArrayAdd.build();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         JsonWriter writer = Json.createWriter(outputStream);
@@ -211,26 +200,14 @@ public class DomainService {
         return new ResponseEntity<>(output, HttpStatus.CREATED);
     }
 
-    public void deleteDomain(String domainID) {
+    public void deleteSystemType(String systemTypeID) {
         authentication.getAuthentication();
 
-        String deleteQuery = methodsDomainSPARQL.deleteDomainSparql(domainID);
+        String deleteQuery = methodsSystemTypeSPARQL.deleteSystemTypeSparql(systemTypeID);
 
         UpdateRequest request = UpdateFactory.create(deleteQuery);
         UpdateProcessor up = UpdateExecutionFactory.createRemote(request, sparqlEndpoint);
         up.execute();
     }
-
-    public List<Domain> getAllDomains2(){
-        List<Domain> domains = new ArrayList<>();
-        Domain domain = new Domain();
-        domain.setLabel("Educação Básica");
-        Domain domain2 = new Domain();
-        domain2.setLabel("Farmácia");
-        domains.add(domain);
-        domains.add(domain2);
-        return domains;
-    }
-
 
 }

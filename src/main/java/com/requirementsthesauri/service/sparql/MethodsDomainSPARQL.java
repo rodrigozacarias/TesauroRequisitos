@@ -1,8 +1,8 @@
-package com.requirementsthesauri.service;
+package com.requirementsthesauri.service.sparql;
 
 import java.util.List;
 
-public class MethodsSPARQL {
+public class MethodsDomainSPARQL {
 
     public String convertFromAcceptToFormat(String accept) {
         String format = "";
@@ -138,7 +138,7 @@ public class MethodsSPARQL {
         return query;
     }
 
-    public String updateDomainsSparql(String olDomainID, String domainID, String label, String prefLabel, String altLabel, String description,
+    public String updateDomainsSparql(String oldDomainID, String domainID, String label, String prefLabel, String altLabel, String description,
                                       String linkDbpedia, String broaderDomainID, List<String> narrowerDomainID, List<String> narrowerRequirementID) {
         String queryUpdate = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n" +
                 "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
@@ -149,10 +149,10 @@ public class MethodsSPARQL {
                 "PREFIX req: <localhost:8080/requirementsThesauri/requirements/>\n" +
                 "\n" +
                 "DELETE \n" +
-                "	{ dom:"+olDomainID+" ?p ?s }\n" +
+                "	{ dom:"+oldDomainID+" ?p ?s }\n" +
                 "WHERE\n" +
                 "{ \n" +
-                "  dom:"+olDomainID+" ?p ?s;\n" +
+                "  dom:"+oldDomainID+" ?p ?s;\n" +
                 " 		rdf:type skos:Concept .\n" +
                 "};\n" +
                 "\n" +
@@ -198,4 +198,5 @@ public class MethodsSPARQL {
 
         return queryDelete;
     }
+
 }

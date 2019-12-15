@@ -2,12 +2,15 @@ package com.requirementsthesauri.model;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
+@XmlRootElement
 @EntityScan
 public class Domain {
 
     private String domainID;
+    private String url;
     private String label;
     private String prefLabel;
     private String altLabel;
@@ -20,9 +23,10 @@ public class Domain {
     public Domain() {
     }
 
-    public Domain(String domainID, String label, String prefLabel, String altLabel, String description,
+    public Domain(String domainID, String url, String label, String prefLabel, String altLabel, String description,
                   String linkDbpedia, String broaderDomainID, List<String> narrowerDomainID, List<String> narrowerRequirementID) {
         this.domainID = domainID;
+        this.url = url;
         this.label = label;
         this.prefLabel = prefLabel;
         this.altLabel = altLabel;
@@ -39,6 +43,14 @@ public class Domain {
 
     public void setDomainID(String domainID) {
         this.domainID = domainID;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getLabel() {

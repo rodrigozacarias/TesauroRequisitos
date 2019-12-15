@@ -23,6 +23,7 @@ public class DomainController{
     }
 
     @GetMapping(value = "/{domainID}", produces = {"application/json",
+            "application/xml",
             "application/ld+json",
             "application/n-triples",
             "application/rdf+xml",
