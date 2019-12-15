@@ -1,7 +1,7 @@
 package com.requirementsthesauri.service;
 
-import com.requirementsthesauri.model.SystemType;
-import com.requirementsthesauri.service.sparql.MethodsSystemTypeSPARQL;
+import com.requirementsthesauri.model.RequirementType;
+import com.requirementsthesauri.service.sparql.MethodsRequirementTypeSPARQL;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.update.UpdateExecutionFactory;
@@ -15,41 +15,41 @@ import javax.json.*;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
-public class SystemTypeService {
+public class RequirementTypeService {
 
     String sparqlEndpoint = "http://127.0.0.1:10035/catalogs/system/repositories/requirements/sparql";
     Authentication authentication = new Authentication();
-    MethodsSystemTypeSPARQL methodsSystemTypeSPARQL = new MethodsSystemTypeSPARQL();
+    MethodsRequirementTypeSPARQL methodsRequirementTypeSPARQL = new MethodsRequirementTypeSPARQL();
 
-    public ResponseEntity<?> createSystemType(List<SystemType> systemTypesList){
+    public ResponseEntity<?> createRequirementType(List<RequirementType> requirementTypesList){
 
         authentication.getAuthentication();
 
-        int TAM = systemTypesList.size();
+        int TAM = requirementTypesList.size();
         JsonArrayBuilder jsonArrayAdd = Json.createArrayBuilder();
-        String uri = "localhost:8080/requirementsThesauri/systemTypes/";
+        String uri = "localhost:8080/requirementsThesauri/requirementTypes/";
 
         for(int i=0; i<TAM; i++) {
-            String systemTypeID = systemTypesList.get(i).getSystemTypeID();
-            String label = systemTypesList.get(i).getLabel();
-            String prefLabel = systemTypesList.get(i).getPrefLabel();
-            String altLabel = systemTypesList.get(i).getAltLabel();
-            String description = systemTypesList.get(i).getDescription();
-            String linkDBpedia = systemTypesList.get(i).getLinkDbpedia();
-            String broaderSystemTypeID = systemTypesList.get(i).getBroaderSystemTypeID();
-            List<String> narrowerSystemTypeID = systemTypesList.get(i).getNarrowerSystemTypeID();
-            List<String> narrowerRequirementID = systemTypesList.get(i).getNarrowerRequirementID();
+            String requirementTypeID = requirementTypesList.get(i).getRequirementTypeID();
+            String label = requirementTypesList.get(i).getLabel();
+            String prefLabel = requirementTypesList.get(i).getPrefLabel();
+            String altLabel = requirementTypesList.get(i).getAltLabel();
+            String description = requirementTypesList.get(i).getDescription();
+            String linkDBpedia = requirementTypesList.get(i).getLinkDbpedia();
+            String broaderRequirementTypeID = requirementTypesList.get(i).getBroaderRequirementTypeID();
+            List<String> narrowerRequirementTypeID = requirementTypesList.get(i).getNarrowerRequirementTypeID();
+            List<String> narrowerRequirementID = requirementTypesList.get(i).getNarrowerRequirementID();
 
 
 
-            String queryUpdate = methodsSystemTypeSPARQL.insertSystemTypeSparql(systemTypeID, label, prefLabel, altLabel, description, linkDBpedia,
-                    broaderSystemTypeID, narrowerSystemTypeID, narrowerRequirementID);
+            String queryUpdate = methodsRequirementTypeSPARQL.insertRequirementTypeSparql(requirementTypeID, label, prefLabel, altLabel, description, linkDBpedia,
+                    broaderRequirementTypeID, narrowerRequirementTypeID, narrowerRequirementID);
 
             UpdateRequest request = UpdateFactory.create(queryUpdate);
             UpdateProcessor up = UpdateExecutionFactory.createRemote(request, sparqlEndpoint);
             up.execute();
 
-            jsonArrayAdd.add(uri+systemTypeID);
+            jsonArrayAdd.add(uri+requirementTypeID);
 
         }
         JsonArray ja = jsonArrayAdd.build();
@@ -60,10 +60,10 @@ public class SystemTypeService {
         return new ResponseEntity<>(output, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<?> getAllSystemTypes(){
+    public ResponseEntity<?> getAllRequirementTypes(){
         authentication.getAuthentication();
 
-        String querySelect = methodsSystemTypeSPARQL.getAllSystemTypesSparqlSelect();
+        String querySelect = methodsRequirementTypeSPARQL.getAllRequirementTypesSparqlSelect();
 
         Query query = QueryFactory.create(querySelect);
         QueryExecution qexec = QueryExecutionFactory.sparqlService(sparqlEndpoint, query);
@@ -72,7 +72,7 @@ public class SystemTypeService {
         //return ResultSetFormatter.asText(results);
 
         JsonArrayBuilder jsonArrayAdd = Json.createArrayBuilder();
-        String c = "systemTypes";
+        String c = "requirementTypes";
         while(results.hasNext()) {
             jsonArrayAdd.add(results.nextSolution().getResource(c).getURI());
         }
@@ -85,10 +85,10 @@ public class SystemTypeService {
         return new ResponseEntity<>(output, HttpStatus.OK);
     }
 
-    public ResponseEntity<?> getSystemType(String systemTypeID, String accept) {
+    public ResponseEntity<?> getRequirementType(String requirementTypeID, String accept) {
         authentication.getAuthentication();
 
-        String queryDescribe = methodsSystemTypeSPARQL.getSystemTypeSparqlDescribe(systemTypeID);
+        String queryDescribe = methodsRequirementTypeSPARQL.getRequirementTypeSparqlDescribe(requirementTypeID);
 
         Query query = QueryFactory.create(queryDescribe);
         QueryExecution qx = QueryExecutionFactory.sparqlService(sparqlEndpoint, query);
@@ -98,9 +98,9 @@ public class SystemTypeService {
             return new ResponseEntity("\"Please, choose a valid Domain ID.\"", HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
-        if(accept.equals("application/json") || methodsSystemTypeSPARQL.isValidFormat(accept)==false) {
+        if(accept.equals("application/json") || methodsRequirementTypeSPARQL.isValidFormat(accept)==false) {
 
-            String querySelect = methodsSystemTypeSPARQL.getSystemTypeSparqlSelect(systemTypeID);
+            String querySelect = methodsRequirementTypeSPARQL.getRequirementTypeSparqlSelect(requirementTypeID);
             Query queryS = QueryFactory.create(querySelect);
             QueryExecution qexec = QueryExecutionFactory.sparqlService(sparqlEndpoint, queryS);
             ResultSet results = qexec.execSelect();
@@ -112,22 +112,22 @@ public class SystemTypeService {
             String altLabel = soln.getLiteral("altLabel").toString();
             String description = soln.getLiteral("description").toString();
             String linkDbpedia = soln.getResource("linkDbpedia").toString();
-            String broaderSystemTypeID = soln.getResource("broaderSystemTypeID").toString();
+            String broaderRequirementTypeID = soln.getResource("broaderRequirementTypeID").toString();
 
 
-            String querySelectN = methodsSystemTypeSPARQL.getSystemTypeSparqlSelectNarrower(systemTypeID);
+            String querySelectN = methodsRequirementTypeSPARQL.getRequirementTypeSparqlSelectNarrower(requirementTypeID);
             Query querySN = QueryFactory.create(querySelectN);
             QueryExecution qexecN = QueryExecutionFactory.sparqlService(sparqlEndpoint, querySN);
             ResultSet resultsN = qexecN.execSelect();
 
-            JsonArrayBuilder narrowerSystemTypeID = Json.createArrayBuilder();
+            JsonArrayBuilder narrowerRequirementTypeID = Json.createArrayBuilder();
             JsonArrayBuilder narrowerRequirementID = Json.createArrayBuilder();
-            String c = "narrowerSystemTypeID";
+            String c = "narrowerRequirementTypeID";
 
             while(resultsN.hasNext()) {
                 String uri = resultsN.nextSolution().getResource(c).getURI();
-                if(uri.contains("systemTypes")) {
-                    narrowerSystemTypeID.add(uri);
+                if(uri.contains("requirementTypes")) {
+                    narrowerRequirementTypeID.add(uri);
                 }else{
                     narrowerRequirementID.add(uri);
                 }
@@ -135,15 +135,15 @@ public class SystemTypeService {
 
 
             JsonObject jobj = Json.createObjectBuilder()
-                    .add("systemTypeID", systemTypeID)
+                    .add("RequirementTypeID", requirementTypeID)
                     .add("url", url)
                     .add("label",label)
                     .add("prefLabel",prefLabel)
                     .add("altLabel",altLabel)
                     .add("description",description)
                     .add("linkDbpedia",linkDbpedia)
-                    .add("broaderSystemTypeID",broaderSystemTypeID)
-                    .add("narrowerSystemTypeID",narrowerSystemTypeID)
+                    .add("broaderRequirementTypeID",broaderRequirementTypeID)
+                    .add("narrowerRequirementTypeID",narrowerRequirementTypeID)
                     .add("narrowerRequirementID",narrowerRequirementID)
                     .build();
 
@@ -157,7 +157,7 @@ public class SystemTypeService {
 
         }else {
 
-            String format = methodsSystemTypeSPARQL.convertFromAcceptToFormat(accept);
+            String format = methodsRequirementTypeSPARQL.convertFromAcceptToFormat(accept);
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             rst.write(outputStream, format);
@@ -167,31 +167,31 @@ public class SystemTypeService {
         }
     }
 
-    public ResponseEntity<?> updateSystemType(String oldSystemTypeID, SystemType newSystemType) {
+    public ResponseEntity<?> updateRequirementType(String oldRequirementTypeID, RequirementType newRequirementType) {
         authentication.getAuthentication();
 
-        String uri = "localhost:8080/requirementsThesauri/systemTypes/";
+        String uri = "localhost:8080/requirementsThesauri/requirementTypes/";
 
-        String systemTypeID = newSystemType.getSystemTypeID();
-        String label = newSystemType.getLabel();
-        String prefLabel = newSystemType.getPrefLabel();
-        String altLabel = newSystemType.getAltLabel();
-        String description = newSystemType.getDescription();
-        String linkDBpedia = newSystemType.getLinkDbpedia();
-        String broaderSystemTypeID = newSystemType.getBroaderSystemTypeID();
-        List<String> narrowerSystemTypeID = newSystemType.getNarrowerSystemTypeID();
-        List<String> narrowerRequirementID = newSystemType.getNarrowerRequirementID();
+        String requirementTypeID = newRequirementType.getRequirementTypeID();
+        String label = newRequirementType.getLabel();
+        String prefLabel = newRequirementType.getPrefLabel();
+        String altLabel = newRequirementType.getAltLabel();
+        String description = newRequirementType.getDescription();
+        String linkDBpedia = newRequirementType.getLinkDbpedia();
+        String broaderRequirementTypeID = newRequirementType.getBroaderRequirementTypeID();
+        List<String> narrowerRequirementTypeID = newRequirementType.getNarrowerRequirementTypeID();
+        List<String> narrowerRequirementID = newRequirementType.getNarrowerRequirementID();
 
 
-        String queryUpdate = methodsSystemTypeSPARQL.updateSystemTypeSparql(oldSystemTypeID, systemTypeID, label, prefLabel, altLabel, description, linkDBpedia,
-                broaderSystemTypeID, narrowerSystemTypeID, narrowerRequirementID);
+        String queryUpdate = methodsRequirementTypeSPARQL.updateRequirementTypeSparql(oldRequirementTypeID, requirementTypeID, label, prefLabel, altLabel, description, linkDBpedia,
+                broaderRequirementTypeID, narrowerRequirementTypeID, narrowerRequirementID);
 
         UpdateRequest request = UpdateFactory.create(queryUpdate);
         UpdateProcessor up = UpdateExecutionFactory.createRemote(request, sparqlEndpoint);
         up.execute();
 
         JsonArrayBuilder jsonArrayAdd = Json.createArrayBuilder();
-        jsonArrayAdd.add(uri+systemTypeID);
+        jsonArrayAdd.add(uri+requirementTypeID);
         JsonArray ja = jsonArrayAdd.build();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         JsonWriter writer = Json.createWriter(outputStream);
@@ -200,10 +200,10 @@ public class SystemTypeService {
         return new ResponseEntity<>(output, HttpStatus.CREATED);
     }
 
-    public void deleteSystemType(String systemTypeID) {
+    public void deleteRequirementType(String RequirementTypeID) {
         authentication.getAuthentication();
 
-        String deleteQuery = methodsSystemTypeSPARQL.deleteSystemTypeSparql(systemTypeID);
+        String deleteQuery = methodsRequirementTypeSPARQL.deleteRequirementTypeSparql(RequirementTypeID);
 
         UpdateRequest request = UpdateFactory.create(deleteQuery);
         UpdateProcessor up = UpdateExecutionFactory.createRemote(request, sparqlEndpoint);
@@ -211,3 +211,5 @@ public class SystemTypeService {
     }
 
 }
+    
+
