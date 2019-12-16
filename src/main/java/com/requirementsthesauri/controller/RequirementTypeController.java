@@ -52,7 +52,7 @@ public class RequirementTypeController {
     }
 
     @DeleteMapping(value = "/{requirementTypeID}")
-    public ResponseEntity<?> deleteAllRequirementTypes(@PathVariable(value="requirementTypeID") String requirementTypeID) {
+    public ResponseEntity<?> deleteRequirementType(@PathVariable(value="requirementTypeID") String requirementTypeID) {
         requirementTypeService.deleteRequirementType(requirementTypeID);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }

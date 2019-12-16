@@ -1,9 +1,9 @@
 package com.requirementsthesauri.service;
 
-import com.requirementsthesauri.model.Domain;
 import com.requirementsthesauri.model.Requirement;
 import com.requirementsthesauri.service.sparql.MethodsRequirementSPARQL;
 import org.apache.jena.query.*;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
@@ -11,10 +11,7 @@ import org.apache.jena.update.UpdateRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonWriter;
+import javax.json.*;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
@@ -95,6 +92,156 @@ public class RequirementService {
         String output = new String(outputStream.toByteArray());
 
         return new ResponseEntity<>(output, HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> getRequirement(String requirementID, String accept) {
+        authentication.getAuthentication();
+
+        String queryDescribe = requirementSPARQL.getRequirementSparqlDescribe(requirementID);
+
+        Query query = QueryFactory.create(queryDescribe);
+        QueryExecution qx = QueryExecutionFactory.sparqlService(sparqlEndpoint, query);
+
+        Model rst = qx.execDescribe();
+        if (rst.isEmpty()) {
+            return new ResponseEntity("\"Please, choose a valid Domain ID.\"", HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+
+        if(accept.equals("application/json") || requirementSPARQL.isValidFormat(accept)==false) {
+
+            String querySelect = requirementSPARQL.getRequirementSparqlSelect(requirementID);
+            Query queryS = QueryFactory.create(querySelect);
+            QueryExecution qexec = QueryExecutionFactory.sparqlService(sparqlEndpoint, queryS);
+            ResultSet results = qexec.execSelect();
+
+            QuerySolution soln = results.nextSolution();
+            String url = soln.getResource("url").toString();
+            String label = soln.getLiteral("label").toString();
+            String prefLabel = soln.getLiteral("prefLabel").toString();
+            String altLabel = soln.getLiteral("altLabel").toString();
+            String problem = soln.getLiteral("problem").toString();
+            String context = soln.getResource("context").toString();
+            String template = soln.getResource("template").toString();
+            String example = soln.getResource("example").toString();
+            String broaderRequirementTypeID = soln.getResource("broaderRequirementTypeID").toString();
+            String broaderRequirementID = soln.getResource("broaderRequirementID").toString();
+
+
+            String querySelectB = requirementSPARQL.getRequirementSparqlSelectBroader(requirementID);
+            Query querySB = QueryFactory.create(querySelectB);
+            QueryExecution qexecB = QueryExecutionFactory.sparqlService(sparqlEndpoint, querySB);
+            ResultSet resultsB = qexecB.execSelect();
+
+            JsonArrayBuilder broaderDomainID = Json.createArrayBuilder();
+            JsonArrayBuilder broaderSystemTypeID = Json.createArrayBuilder();
+            String c = "broader";
+
+            while(resultsB.hasNext()) {
+                String uri = resultsB.nextSolution().getResource(c).getURI();
+                if(uri.contains("domains")) {
+                    broaderDomainID.add(uri);
+                }else{
+                    broaderSystemTypeID.add(uri);
+                }
+            }
+            
+            
+            String querySelectN = requirementSPARQL.getRequirementSparqlSelectNarrower(requirementID);
+            Query querySN = QueryFactory.create(querySelectN);
+            QueryExecution qexecN = QueryExecutionFactory.sparqlService(sparqlEndpoint, querySN);
+            ResultSet resultsN = qexecN.execSelect();
+            
+            JsonArrayBuilder narrowerRequirementID = Json.createArrayBuilder();
+            String s = "narrowerDomainID";
+
+            while(resultsN.hasNext()) {
+                narrowerRequirementID.add(resultsN.nextSolution().getResource(s).getURI());
+            }
+            
+
+            JsonObject jobj = Json.createObjectBuilder()
+                    .add("requirementID", requirementID)
+                    .add("url", url)
+                    .add("label",label)
+                    .add("prefLabel", prefLabel)
+                    .add("altLabel", altLabel)
+                    .add("problem", problem)
+                    .add("context",context)
+                    .add("template", template)
+                    .add("broaderRequirementTypeID", broaderRequirementTypeID)
+                    .add("broaderRequirementID", broaderRequirementID)
+                    .add("broaderDomainID", broaderDomainID)
+                    .add("broaderSystemTypeID", broaderSystemTypeID)
+                    .add("narrowerRequirementID", narrowerRequirementID)
+                    .build();
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            JsonWriter writer = Json.createWriter(outputStream);
+            writer.writeObject(jobj);
+            String output = new String(outputStream.toByteArray());
+            writer.close();
+
+            return new ResponseEntity<>(output, HttpStatus.OK);
+
+        }else {
+
+            String format = requirementSPARQL.convertFromAcceptToFormat(accept);
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            rst.write(outputStream, format);
+            String output = new String(outputStream.toByteArray());
+
+            return new ResponseEntity<>(output, HttpStatus.OK);
+        }
+    }
+
+    public ResponseEntity<?> updateRequirement(String oldRequirementID, Requirement newRequirement) {
+        authentication.getAuthentication();
+
+        String uri = "localhost:8080/requirementsThesauri/requirements/";
+
+        String requirementID = newRequirement.getRequirementID();
+        String label = newRequirement.getLabel();
+        String language = newRequirement.getLanguage();
+        String prefLabel = newRequirement.getPrefLabel();
+        String altLabel = newRequirement.getAltLabel();
+        String problem = newRequirement.getProblem();
+        String context = newRequirement.getContext();
+        String template = newRequirement.getTemplate();
+        String example = newRequirement.getExample();
+        String broaderRequirementTypeID = newRequirement.getBroaderRequirementTypeID();
+        String broaderRequirementID = newRequirement.getBroaderRequirementTypeID();
+        List<String> broaderDomainID = newRequirement.getBroaderDomainID();
+        List<String> broaderSystemTypeID = newRequirement.getBroaderSystemTypeID();
+        List<String> narrowerRequirementID = newRequirement.getNarrowerRequirementID();
+
+
+        String queryUpdate = requirementSPARQL.updateRequirementSparql(oldRequirementID, requirementID, label, language, prefLabel, altLabel,
+                problem, context, template, example, broaderRequirementTypeID,broaderRequirementID, broaderDomainID, broaderSystemTypeID,
+                narrowerRequirementID);
+
+        UpdateRequest request = UpdateFactory.create(queryUpdate);
+        UpdateProcessor up = UpdateExecutionFactory.createRemote(request, sparqlEndpoint);
+        up.execute();
+
+        JsonArrayBuilder jsonArrayAdd = Json.createArrayBuilder();
+        jsonArrayAdd.add(uri+requirementID);
+        JsonArray ja = jsonArrayAdd.build();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        JsonWriter writer = Json.createWriter(outputStream);
+        writer.writeArray(ja);
+        String output = new String(outputStream.toByteArray());
+        return new ResponseEntity<>(output, HttpStatus.CREATED);
+    }
+
+    public void deleteRequirement(String requirementID) {
+        authentication.getAuthentication();
+
+        String deleteQuery = requirementSPARQL.deleteRequirementSparql(requirementID);
+
+        UpdateRequest request = UpdateFactory.create(deleteQuery);
+        UpdateProcessor up = UpdateExecutionFactory.createRemote(request, sparqlEndpoint);
+        up.execute();
     }
 
 }

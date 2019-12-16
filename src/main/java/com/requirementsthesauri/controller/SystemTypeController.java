@@ -52,7 +52,7 @@ public class SystemTypeController {
     }
 
     @DeleteMapping(value = "/{systemTypeID}")
-    public ResponseEntity<?> deleteAllSystemTypes(@PathVariable(value="systemTypeID") String systemTypeID) {
+    public ResponseEntity<?> deleteSystemType(@PathVariable(value="systemTypeID") String systemTypeID) {
         systemTypeService.deleteSystemType(systemTypeID);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }

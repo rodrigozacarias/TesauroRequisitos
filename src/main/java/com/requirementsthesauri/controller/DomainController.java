@@ -2,7 +2,6 @@ package com.requirementsthesauri.controller;
 
 import com.requirementsthesauri.model.Domain;
 import com.requirementsthesauri.service.DomainService;
-import jdk.nashorn.internal.runtime.ECMAErrors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -54,7 +53,7 @@ public class DomainController{
     }
 
     @DeleteMapping(value = "/{domainID}")
-    public ResponseEntity<?> deleteAllDomains(@PathVariable(value="domainID") String domainID) {
+    public ResponseEntity<?> deleteDomain(@PathVariable(value="domainID") String domainID) {
         domainService.deleteDomain(domainID);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
