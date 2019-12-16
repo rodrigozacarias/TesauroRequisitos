@@ -14,7 +14,7 @@ import java.util.List;
 @RequestMapping("requirementTypes")
 public class RequirementTypeController {
 
-    private RequirementTypeService requirementTypeService = new RequirementTypeService();
+    RequirementTypeService requirementTypeService = new RequirementTypeService();
 
     @GetMapping("/getAllRequirementTypes")
     public ResponseEntity<?> getAllRequirementTypes(){

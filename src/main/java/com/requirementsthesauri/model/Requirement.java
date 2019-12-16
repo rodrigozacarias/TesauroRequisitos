@@ -1,10 +1,16 @@
 package com.requirementsthesauri.model;
 
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
+@XmlRootElement
+@EntityScan
 public class Requirement {
 
     private String requirementID;
+    private String url;
     private String label;
     private String language;
     private String prefLabel;
@@ -13,12 +19,34 @@ public class Requirement {
     private String context;
     private String template;
     private String example;
-    private String broaderDomainID;
-    private String broaderSystemTypeID;
     private String broaderRequirementTypeID;
-    private List<String> narrowerRequirementTypeID;
+    private String broaderRequirementID;
+    private List<String> broaderDomainID;
+    private List<String> broaderSystemTypeID;
+    private List<String> narrowerRequirementID;
 
     public Requirement() {
+    }
+
+    public Requirement(String requirementID, String url, String label, String language, String prefLabel, String altLabel,
+                       String problem, String context, String template, String example, String broaderRequirementTypeID,
+                       String broaderRequirementID, List<String> broaderDomainID, List<String> broaderSystemTypeID,
+                       List<String> narrowerRequirementID) {
+        this.requirementID = requirementID;
+        this.url = url;
+        this.label = label;
+        this.language = language;
+        this.prefLabel = prefLabel;
+        this.altLabel = altLabel;
+        this.problem = problem;
+        this.context = context;
+        this.template = template;
+        this.example = example;
+        this.broaderRequirementTypeID = broaderRequirementTypeID;
+        this.broaderRequirementID = broaderRequirementID;
+        this.broaderDomainID = broaderDomainID;
+        this.broaderSystemTypeID = broaderSystemTypeID;
+        this.narrowerRequirementID = narrowerRequirementID;
     }
 
     public String getRequirementID() {
@@ -27,6 +55,14 @@ public class Requirement {
 
     public void setRequirementID(String requirementID) {
         this.requirementID = requirementID;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getLabel() {
@@ -93,22 +129,6 @@ public class Requirement {
         this.example = example;
     }
 
-    public String getBroaderDomainID() {
-        return broaderDomainID;
-    }
-
-    public void setBroaderDomainID(String broaderDomainID) {
-        this.broaderDomainID = broaderDomainID;
-    }
-
-    public String getBroaderSystemTypeID() {
-        return broaderSystemTypeID;
-    }
-
-    public void setBroaderSystemTypeID(String broaderSystemTypeID) {
-        this.broaderSystemTypeID = broaderSystemTypeID;
-    }
-
     public String getBroaderRequirementTypeID() {
         return broaderRequirementTypeID;
     }
@@ -117,11 +137,35 @@ public class Requirement {
         this.broaderRequirementTypeID = broaderRequirementTypeID;
     }
 
-    public List<String> getNarrowerRequirementTypeID() {
-        return narrowerRequirementTypeID;
+    public String getBroaderRequirementID() {
+        return broaderRequirementID;
     }
 
-    public void setNarrowerRequirementTypeID(List<String> narrowerRequirementTypeID) {
-        this.narrowerRequirementTypeID = narrowerRequirementTypeID;
+    public void setBroaderRequirementID(String broaderRequirementID) {
+        this.broaderRequirementID = broaderRequirementID;
+    }
+
+    public List<String> getBroaderDomainID() {
+        return broaderDomainID;
+    }
+
+    public void setBroaderDomainID(List<String> broaderDomainID) {
+        this.broaderDomainID = broaderDomainID;
+    }
+
+    public List<String> getBroaderSystemTypeID() {
+        return broaderSystemTypeID;
+    }
+
+    public void setBroaderSystemTypeID(List<String> broaderSystemTypeID) {
+        this.broaderSystemTypeID = broaderSystemTypeID;
+    }
+
+    public List<String> getNarrowerRequirementID() {
+        return narrowerRequirementID;
+    }
+
+    public void setNarrowerRequirementID(List<String> narrowerRequirementID) {
+        this.narrowerRequirementID = narrowerRequirementID;
     }
 }

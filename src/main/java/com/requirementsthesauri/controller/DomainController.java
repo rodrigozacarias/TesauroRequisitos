@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("domains")
 public class DomainController{
 
-    private DomainService domainService = new DomainService();
+    DomainService domainService = new DomainService();
 
     @GetMapping("/getAllDomains")
     public ResponseEntity<?> getAllDomains(){

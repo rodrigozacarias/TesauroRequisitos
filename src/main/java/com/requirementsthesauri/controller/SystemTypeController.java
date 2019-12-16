@@ -14,7 +14,7 @@ import java.util.List;
 @RequestMapping("systemTypes")
 public class SystemTypeController {
 
-    private SystemTypeService systemTypeService = new SystemTypeService();
+    SystemTypeService systemTypeService = new SystemTypeService();
 
     @GetMapping("/getAllSystemTypes")
     public ResponseEntity<?> getAllSystemTypes(){
