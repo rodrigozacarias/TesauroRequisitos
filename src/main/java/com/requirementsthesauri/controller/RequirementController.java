@@ -28,7 +28,7 @@ public class RequirementController {
             "application/rdf+xml",
             "application/turtle",
             "application/rdf+json"})
-    public ResponseEntity<?> getDomain(@PathVariable(value="requirementID") String requirementID, @RequestHeader("Accept") String accept){
+    public ResponseEntity<?> getRequirement(@PathVariable(value="requirementID") String requirementID, @RequestHeader("Accept") String accept){
         return requirementService.getRequirement(requirementID, accept);
     }
 

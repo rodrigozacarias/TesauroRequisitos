@@ -46,7 +46,7 @@ public class MethodsRequirementSPARQL {
                 "PREFIX dom: <localhost:8080/requirementsThesauri/domains/>\n" +
                 "PREFIX req: <localhost:8080/requirementsThesauri/requirements/>\n" +
                 "PREFIX sys: <localhost:8080/requirementsThesauri/systemTypes/>\n" +
-                "PREFIX rqt: <localhost:8080/requirementsThesauri/requirementType/>\n" +
+                "PREFIX rqt: <localhost:8080/requirementsThesauri/requirementTypes/>\n" +
                 "INSERT DATA\n" +
                 "{\n" +
                 "  req:"+ requirementID +" 	rdf:type		skos:Concept ;\n" +
@@ -103,21 +103,20 @@ public class MethodsRequirementSPARQL {
                 "PREFIX schema: <http://schema.org/>\n" +
                 "PREFIX dcmitype: <http://purl.org/dc/dcmitype/>\n" +
                 "PREFIX req: <localhost:8080/requirementsThesauri/requirements/>\n" +
-                "SELECT ?url ?label ?language ?prefLabel \n" +
+                "SELECT ?url ?label ?language ?prefLabel ?altLabel ?problem ?context ?template ?example " +
+                "\n" +
                 "WHERE{\n" +
                 "\n" +
                 "  req:"+ requirementID +" 	rdf:type		skos:Concept ;\n" +
                 "                schema:url	?url ;\n" +
                 "                rdfs:label	?label ;\n" +
                 "                dcmitype:language	?language ;\n" +
-                "                skos:preLabel	?prefLabel .\n" +
-//                "                skos:altLabel	?altLabel ;\n" +
-//                "                skos:scopeNote	?problem ;\n" +
-//                "                skos:related	?context ;\n" +
-//                "                skos:definition	?template ;\n" +
-//                "                skos:example	?example ;\n" +
-//                "                skos:broader	?broaderRequirementTypeID ;\n" +
-//                "                skos:broader	?broaderRequirementID .\n" +
+                "                skos:preLabel	?prefLabel ;\n" +
+                "                skos:altLabel	?altLabel ;\n" +
+                "                skos:note	?problem ;\n" +
+                "                skos:scopeNote	?context ;\n" +
+                "                skos:definition	?template ;\n" +
+                "                skos:example	?example .\n" +
                 "  \n" +
                 "}\n" +
                 "";
@@ -135,7 +134,6 @@ public class MethodsRequirementSPARQL {
                 "                 skos:narrower  ?narrower .\n" +
                 "}\n" +
                 "";
-
         return querySelect;
     }
     public String getRequirementSparqlSelectBroader(String requirementID) {
@@ -179,7 +177,7 @@ public class MethodsRequirementSPARQL {
                 "PREFIX dom: <localhost:8080/requirementsThesauri/domains/>\n" +
                 "PREFIX req: <localhost:8080/requirementsThesauri/requirements/>\n" +
                 "PREFIX sys: <localhost:8080/requirementsThesauri/systemTypes/>\n" +
-                "PREFIX rqt: <localhost:8080/requirementsThesauri/requirementType/>\n" +
+                "PREFIX rqt: <localhost:8080/requirementsThesauri/requirementTypes/>\n" +
                 "\n" +
                 "DELETE \n" +
                 "	{ req:"+oldRequirementID+" ?p ?s }\n" +
@@ -197,8 +195,8 @@ public class MethodsRequirementSPARQL {
                 "                dcmitype:language	\""+language+"\" ;\n" +
                 "                skos:preLabel	\""+prefLabel+"\" ;\n" +
                 "                skos:altLabel	\""+altLabel+"\" ;\n" +
-                "                skos:scopeNote	\""+problem+"\" ;\n" +
-                "                skos:related	\""+context+"\" ;\n" +
+                "                skos:note\""+problem+"\" ;\n" +
+                "                skos:scopeNote	\""+context+"\" ;\n" +
                 "                skos:definition	\""+template+"\" ;\n" +
                 "                skos:example	\""+example+"\" ;\n" +
                 "                skos:broader	rqt:"+broaderRequirementTypeID+" ;\n" +

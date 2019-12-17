@@ -119,13 +119,13 @@ public class RequirementService {
             String label = soln.getLiteral("label").toString();
             String language = soln.getLiteral("language").toString();
             String prefLabel = soln.getLiteral("prefLabel").toString();
-//            String altLabel = soln.getLiteral("altLabel").toString();
-//            String problem = soln.getLiteral("problem").toString();
-//            String context = soln.getLiteral("context").toString();
-//            String template = soln.getLiteral("template").toString();
-//            String example = soln.getLiteral("example").toString();
-//            String broaderRequirementTypeID = soln.getResource("broaderRequirementTypeID").toString();
-//            String broaderRequirementID = soln.getResource("broaderRequirementID").toString();
+            String altLabel = soln.getLiteral("altLabel").toString();
+            String problem = soln.getLiteral("problem").toString();
+            String context = soln.getLiteral("context").toString();
+            String template = soln.getLiteral("template").toString();
+            String example = soln.getLiteral("example").toString();
+            String broaderRequirementTypeID = "";
+            String broaderRequirementID = "";
 
 
             String querySelectB = requirementSPARQL.getRequirementSparqlSelectBroader(requirementID);
@@ -143,22 +143,28 @@ public class RequirementService {
                     broaderDomainID.add(uri);
                 }else if(uri.contains("systemTypes")){
                     broaderSystemTypeID.add(uri);
+                }else if(uri.contains("requirementTypes")) {
+                    broaderRequirementTypeID = uri;
+                }else if(uri.contains("requirements/")) {
+                    broaderRequirementID = uri;
                 }
             }
-            
-            
+
+            qexecB.close();
+
             String querySelectN = requirementSPARQL.getRequirementSparqlSelectNarrower(requirementID);
             Query querySN = QueryFactory.create(querySelectN);
             QueryExecution qexecN = QueryExecutionFactory.sparqlService(sparqlEndpoint, querySN);
             ResultSet resultsN = qexecN.execSelect();
-            
+
+
             JsonArrayBuilder narrowerRequirementID = Json.createArrayBuilder();
-            String s = "narrowerDomainID";
+            String s = "narrower";
 
             while(resultsN.hasNext()) {
                 narrowerRequirementID.add(resultsN.nextSolution().getResource(s).getURI());
             }
-            
+
 
             JsonObject jobj = Json.createObjectBuilder()
                     .add("requirementID", requirementID)
@@ -166,13 +172,13 @@ public class RequirementService {
                     .add("language", language)
                     .add("label",label)
                     .add("prefLabel", prefLabel)
-//                    .add("altLabel", altLabel)
-//                    .add("problem", problem)
-//                    .add("context",context)
-//                    .add("template", template)
-//                    .add("example", example)
-//                    .add("broaderRequirementTypeID", broaderRequirementTypeID)
-//                    .add("broaderRequirementID", broaderRequirementID)
+                    .add("altLabel", altLabel)
+                    .add("problem", problem)
+                    .add("context",context)
+                    .add("template", template)
+                    .add("example", example)
+                    .add("broaderRequirementTypeID", broaderRequirementTypeID)
+                    .add("broaderRequirementID", broaderRequirementID)
                     .add("broaderDomainID", broaderDomainID)
                     .add("broaderSystemTypeID", broaderSystemTypeID)
                     .add("narrowerRequirementID", narrowerRequirementID)
@@ -197,6 +203,23 @@ public class RequirementService {
             return new ResponseEntity<>(output, HttpStatus.OK);
         }
     }
+
+//    private JsonArrayBuilder narrower(String requirementID){
+//
+//        String querySelectN = requirementSPARQL.getRequirementSparqlSelectNarrower(requirementID);
+//        Query querySN = QueryFactory.create(querySelectN);
+//        QueryExecution qexecN = QueryExecutionFactory.sparqlService(sparqlEndpoint, querySN);
+//        ResultSet resultsN = qexecN.execSelect();
+//
+//        JsonArrayBuilder narrowerRequirementID = Json.createArrayBuilder();
+//        String s = "narrower";
+//
+//        while(resultsN.hasNext()) {
+//            narrowerRequirementID.add(resultsN.nextSolution().getResource(s).getURI());
+//        }
+//
+//        return narrowerRequirementID;
+//    }
 
     public ResponseEntity<?> updateRequirement(String oldRequirementID, Requirement newRequirement) {
         authentication.getAuthentication();
