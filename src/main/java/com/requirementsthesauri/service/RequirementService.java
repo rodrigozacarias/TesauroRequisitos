@@ -40,7 +40,7 @@ public class RequirementService {
             String template = requirementsList.get(i).getTemplate();
             String example = requirementsList.get(i).getExample();
             String broaderRequirementTypeID = requirementsList.get(i).getBroaderRequirementTypeID();
-            String broaderRequirementID = requirementsList.get(i).getBroaderRequirementTypeID();
+            String broaderRequirementID = requirementsList.get(i).getBroaderRequirementID();
             List<String> broaderDomainID = requirementsList.get(i).getBroaderDomainID();
             List<String> broaderSystemTypeID = requirementsList.get(i).getBroaderSystemTypeID();
             List<String> narrowerRequirementID = requirementsList.get(i).getNarrowerRequirementID();
@@ -81,7 +81,7 @@ public class RequirementService {
         String c = "requirement";
         while(results.hasNext()) {
             String uri = results.nextSolution().getResource(c).getURI();
-            if(uri.contains("requirements")) {
+            if(uri.contains("requirements/")) {
                 jsonArrayAdd.add(uri);
             }
         }
@@ -117,14 +117,15 @@ public class RequirementService {
             QuerySolution soln = results.nextSolution();
             String url = soln.getResource("url").toString();
             String label = soln.getLiteral("label").toString();
+            String language = soln.getLiteral("language").toString();
             String prefLabel = soln.getLiteral("prefLabel").toString();
-            String altLabel = soln.getLiteral("altLabel").toString();
-            String problem = soln.getLiteral("problem").toString();
-            String context = soln.getResource("context").toString();
-            String template = soln.getResource("template").toString();
-            String example = soln.getResource("example").toString();
-            String broaderRequirementTypeID = soln.getResource("broaderRequirementTypeID").toString();
-            String broaderRequirementID = soln.getResource("broaderRequirementID").toString();
+//            String altLabel = soln.getLiteral("altLabel").toString();
+//            String problem = soln.getLiteral("problem").toString();
+//            String context = soln.getLiteral("context").toString();
+//            String template = soln.getLiteral("template").toString();
+//            String example = soln.getLiteral("example").toString();
+//            String broaderRequirementTypeID = soln.getResource("broaderRequirementTypeID").toString();
+//            String broaderRequirementID = soln.getResource("broaderRequirementID").toString();
 
 
             String querySelectB = requirementSPARQL.getRequirementSparqlSelectBroader(requirementID);
@@ -140,7 +141,7 @@ public class RequirementService {
                 String uri = resultsB.nextSolution().getResource(c).getURI();
                 if(uri.contains("domains")) {
                     broaderDomainID.add(uri);
-                }else{
+                }else if(uri.contains("systemTypes")){
                     broaderSystemTypeID.add(uri);
                 }
             }
@@ -162,14 +163,16 @@ public class RequirementService {
             JsonObject jobj = Json.createObjectBuilder()
                     .add("requirementID", requirementID)
                     .add("url", url)
+                    .add("language", language)
                     .add("label",label)
                     .add("prefLabel", prefLabel)
-                    .add("altLabel", altLabel)
-                    .add("problem", problem)
-                    .add("context",context)
-                    .add("template", template)
-                    .add("broaderRequirementTypeID", broaderRequirementTypeID)
-                    .add("broaderRequirementID", broaderRequirementID)
+//                    .add("altLabel", altLabel)
+//                    .add("problem", problem)
+//                    .add("context",context)
+//                    .add("template", template)
+//                    .add("example", example)
+//                    .add("broaderRequirementTypeID", broaderRequirementTypeID)
+//                    .add("broaderRequirementID", broaderRequirementID)
                     .add("broaderDomainID", broaderDomainID)
                     .add("broaderSystemTypeID", broaderSystemTypeID)
                     .add("narrowerRequirementID", narrowerRequirementID)

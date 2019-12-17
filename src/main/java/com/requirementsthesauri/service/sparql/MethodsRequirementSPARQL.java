@@ -55,12 +55,12 @@ public class MethodsRequirementSPARQL {
                 "                dcmitype:language	\""+language+"\" ;\n" +
                 "                skos:preLabel	\""+prefLabel+"\" ;\n" +
                 "                skos:altLabel	\""+altLabel+"\" ;\n" +
-                "                skos:scopeNote	\""+problem+"\" ;\n" +
-                "                skos:related	\""+context+"\" ;\n" +
+                "                skos:note\""+problem+"\" ;\n" +
+                "                skos:scopeNote	\""+context+"\" ;\n" +
                 "                skos:definition	\""+template+"\" ;\n" +
                 "                skos:example	\""+example+"\" ;\n" +
-                "                skos:broader	rqt"+broaderRequirementTypeID+" ;\n" +
-                "                skos:broader	req"+broaderRequirementID+" ;\n";
+                "                skos:broader	rqt:"+broaderRequirementTypeID+" ;\n" +
+                "                skos:broader	req:"+broaderRequirementID+" ;\n";
         if(!broaderDomainID.isEmpty()){
             for (String bd: broaderDomainID){
                 queryInsert = queryInsert + "                skos:broader	dom:"+bd+" ;\n";
@@ -103,22 +103,21 @@ public class MethodsRequirementSPARQL {
                 "PREFIX schema: <http://schema.org/>\n" +
                 "PREFIX dcmitype: <http://purl.org/dc/dcmitype/>\n" +
                 "PREFIX req: <localhost:8080/requirementsThesauri/requirements/>\n" +
-                "SELECT ?url ?label ?prefLabel ?altLabel ?problem" +
-                " ?context ?template ?example ?broaderRequirementTypeID ?broaderRequirementID \n" +
+                "SELECT ?url ?label ?language ?prefLabel \n" +
                 "WHERE{\n" +
                 "\n" +
                 "  req:"+ requirementID +" 	rdf:type		skos:Concept ;\n" +
                 "                schema:url	?url ;\n" +
                 "                rdfs:label	?label ;\n" +
                 "                dcmitype:language	?language ;\n" +
-                "                skos:preLabel	?prefLabel ;\n" +
-                "                skos:altLabel	?altLabel ;\n" +
-                "                skos:scopeNote	?problem ;\n" +
-                "                skos:related	?context ;\n" +
-                "                skos:definition	?template ;\n" +
-                "                skos:example	?example ;\n" +
-                "                skos:broader	?broaderRequirementTypeID ;\n" +
-                "                skos:broader	?broaderRequirementID .\n" +
+                "                skos:preLabel	?prefLabel .\n" +
+//                "                skos:altLabel	?altLabel ;\n" +
+//                "                skos:scopeNote	?problem ;\n" +
+//                "                skos:related	?context ;\n" +
+//                "                skos:definition	?template ;\n" +
+//                "                skos:example	?example ;\n" +
+//                "                skos:broader	?broaderRequirementTypeID ;\n" +
+//                "                skos:broader	?broaderRequirementID .\n" +
                 "  \n" +
                 "}\n" +
                 "";
@@ -202,8 +201,8 @@ public class MethodsRequirementSPARQL {
                 "                skos:related	\""+context+"\" ;\n" +
                 "                skos:definition	\""+template+"\" ;\n" +
                 "                skos:example	\""+example+"\" ;\n" +
-                "                skos:broader	rqt"+broaderRequirementTypeID+" ;\n" +
-                "                skos:broader	req"+broaderRequirementID+" ;\n";
+                "                skos:broader	rqt:"+broaderRequirementTypeID+" ;\n" +
+                "                skos:broader	req:"+broaderRequirementID+" ;\n";
         if(!broaderDomainID.isEmpty()){
             for (String bd: broaderDomainID){
                 queryUpdate = queryUpdate + "                skos:broader	dom:"+bd+" ;\n";
